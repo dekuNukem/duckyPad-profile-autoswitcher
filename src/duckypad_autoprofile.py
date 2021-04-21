@@ -16,8 +16,10 @@ THIS_VERSION_NUMBER = '0.1.0'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 640
 PADDING = 10
+duckypad_fw_ver = None
 
 def find_duckypad():
+    global duckypad_fw_ver
     root.after(500, find_duckypad)
     if hid_rw.get_duckypad_path() is None:
         connection_info_str.set("Looking for duckyPad...")
@@ -33,6 +35,8 @@ def find_duckypad():
         result = hid_rw.duckypad_get_info()
         connection_info_str.set(f"duckyPad found!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
         connection_info_label.config(foreground='navy')
+        if result is None:
+            duckypad_fw_ver = result['fw_ver']
     except Exception as e:
         # print(traceback.format_exc())
         return
@@ -87,7 +91,7 @@ connection_info_label.place(x=PADDING, y=5)
 discord_link_url = "https://raw.githubusercontent.com/dekuNukem/duckyPad/master/resources/discord_link.txt"
 
 def open_user_manual():
-    webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/getting_started.md')
+    webbrowser.open('https://github.com/dekuNukem/duckyPad-profile-autoswitcher#user-manual')
 
 def open_discord():
     try:
@@ -412,6 +416,8 @@ except Exception as e:
 
 updates_lf = LabelFrame(root, text="Updates", width=620, height=80)
 updates_lf.place(x=PADDING, y=530)
+
+print(duckypad_fw_ver) # check update once! in repeat func
 
 # ------------------
 
