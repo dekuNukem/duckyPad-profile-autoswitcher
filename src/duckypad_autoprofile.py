@@ -11,15 +11,21 @@ import traceback
 import json
 import os
 import webbrowser
+import check_update
+import sys
+
+default_button_color = 'SystemButtonFace'
+if 'linux' in sys.platform:
+    default_button_color = 'grey'
 
 THIS_VERSION_NUMBER = '0.1.0'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 640
 PADDING = 10
-duckypad_fw_ver = None
+fw_update_checked = False
 
 def find_duckypad():
-    global duckypad_fw_ver
+    global fw_update_checked
     root.after(500, find_duckypad)
     if hid_rw.get_duckypad_path() is None:
         connection_info_str.set("Looking for duckyPad...")
@@ -35,8 +41,9 @@ def find_duckypad():
         result = hid_rw.duckypad_get_info()
         connection_info_str.set(f"duckyPad found!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
         connection_info_label.config(foreground='navy')
-        if result is None:
-            duckypad_fw_ver = result['fw_ver']
+        if result is not None and fw_update_checked is False:
+            print_fw_update_label(result['fw_ver'])
+            fw_update_checked = True
     except Exception as e:
         # print(traceback.format_exc())
         return
@@ -414,10 +421,43 @@ except Exception as e:
 
 # ------------------
 
+def fw_update_click(what):
+    webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/firmware_updates_and_version_history.md')
+
+def app_update_click(event):
+    webbrowser.open('https://github.com/dekuNukem/duckyPad-profile-autoswitcher/releases')
+
+def print_fw_update_label(this_version):
+    fw_result = check_update.get_firmware_update_status(this_version)
+    if fw_result == 0:
+        dp_fw_update_label.config(text='duckyPad firmware (' + str(this_version) +'): Up to date', fg='black', bg=default_button_color)
+        dp_fw_update_label.unbind("<Button-1>")
+    elif fw_result == 1:
+        dp_fw_update_label.config(text='duckyPad firmware (' + str(this_version) +'): Update available! Click me!', fg='black', bg='orange', cursor="hand2")
+        dp_fw_update_label.bind("<Button-1>", fw_update_click)
+    else:
+        dp_fw_update_label.config(text='duckyPad firmware: Unknown', fg='black', bg=default_button_color)
+        dp_fw_update_label.unbind("<Button-1>")
+
 updates_lf = LabelFrame(root, text="Updates", width=620, height=80)
 updates_lf.place(x=PADDING, y=530)
 
-print(duckypad_fw_ver) # check update once! in repeat func
+pc_app_update_label = Label(master=updates_lf)
+pc_app_update_label.place(x=5, y=5)
+update_stats = check_update.get_pc_app_update_status(THIS_VERSION_NUMBER)
+
+if update_stats == 0:
+    pc_app_update_label.config(text='This app (' + str(THIS_VERSION_NUMBER) + '): Up to date', fg='black', bg=default_button_color)
+    pc_app_update_label.unbind("<Button-1>")
+elif update_stats == 1:
+    pc_app_update_label.config(text='This app (' + str(THIS_VERSION_NUMBER) + '): Update available! Click me!', fg='black', bg='orange', cursor="hand2")
+    pc_app_update_label.bind("<Button-1>", app_update_click)
+else:
+    pc_app_update_label.config(text='This app (' + str(THIS_VERSION_NUMBER) + '): Unknown', fg='black', bg=default_button_color)
+    pc_app_update_label.unbind("<Button-1>")
+
+dp_fw_update_label = Label(master=updates_lf, text="duckyPad firmware: Unknown")
+dp_fw_update_label.place(x=5, y=30)
 
 # ------------------
 
