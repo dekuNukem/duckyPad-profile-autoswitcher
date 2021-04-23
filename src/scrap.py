@@ -1,3 +1,13 @@
+
+def enable_buttons():
+    prev_profile_button.config(state=NORMAL)
+    next_profile_button.config(state=NORMAL)
+
+def disable_buttons():
+    prev_profile_button.config(state=DISABLED)
+    next_profile_button.config(state=DISABLED)
+
+
 import hid_rw
 buffff = [0] * 64
 buffff[0] = 5

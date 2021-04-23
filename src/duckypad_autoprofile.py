@@ -13,6 +13,13 @@ import os
 import webbrowser
 import check_update
 import sys
+import logging
+
+save_path = os.path.join(os.getenv('APPDATA'), 'dekuNukem')
+save_path = os.path.join(save_path, 'duckypad_autoswitcher')
+save_filename = os.path.join(save_path, 'config.txt')
+logging_filename = os.path.join(save_path, 'debug_log.txt')
+logging.basicConfig(level=logging.DEBUG, filename=logging_filename, format='%(asctime)s %(levelname)s %(message)s')
 
 default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
@@ -20,9 +27,11 @@ if 'linux' in sys.platform:
 
 THIS_VERSION_NUMBER = '0.0.1'
 MAIN_WINDOW_WIDTH = 640
-MAIN_WINDOW_HEIGHT = 640
+MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
 fw_update_checked = False
+
+logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
 def find_duckypad():
     global fw_update_checked
@@ -30,12 +39,10 @@ def find_duckypad():
     if hid_rw.get_duckypad_path() is None:
         connection_info_str.set("Looking for duckyPad...")
         connection_info_label.config(foreground='red')
-        disable_buttons()
         return
 
     connection_info_str.set("duckyPad found!")
     connection_info_label.config(foreground='navy')
-    enable_buttons()
 
     try:
         result = hid_rw.duckypad_get_info()
@@ -46,6 +53,7 @@ def find_duckypad():
             fw_update_checked = True
     except Exception as e:
         # print(traceback.format_exc())
+        # logging.error(traceback.format_exc())
         return
     
 def update_windows(textbox):
@@ -71,14 +79,6 @@ def next_prof_click():
     buffff[2] = 3
     hid_rw.duckypad_hid_write(buffff)
 
-def enable_buttons():
-    prev_profile_button.config(state=NORMAL)
-    next_profile_button.config(state=NORMAL)
-
-def disable_buttons():
-    prev_profile_button.config(state=DISABLED)
-    next_profile_button.config(state=DISABLED)
-
 root = Tk()
 root.title("duckyPad profile auto switcher " + THIS_VERSION_NUMBER)
 root.geometry(str(MAIN_WINDOW_WIDTH) + "x" + str(MAIN_WINDOW_HEIGHT))
@@ -92,8 +92,9 @@ connection_info_lf.place(x=PADDING, y=0)
 connection_info_label = Label(master=connection_info_lf, textvariable=connection_info_str)
 connection_info_label.place(x=PADDING, y=5)
 
-
 # --------------------
+
+is_autoswitch_enabled = True
 
 discord_link_url = "https://raw.githubusercontent.com/dekuNukem/duckyPad/master/resources/discord_link.txt"
 
@@ -106,22 +107,47 @@ def open_discord():
     except Exception as e:
         messagebox.showerror("Error", "Failed to open discord link!\n"+str(e))
 
-dashboard_lf = LabelFrame(root, text="Dashboard", width=620, height=60)
+def toggle_autoswitch(whatever):
+    global is_autoswitch_enabled
+    is_autoswitch_enabled = not is_autoswitch_enabled
+    if is_autoswitch_enabled:
+        autoswitch_status_var.set("Profile Autoswitch: ENABLED     Click me to stop")
+        autoswitch_status_label.config(fg='white', bg='green', cursor="hand2")
+    else:
+        autoswitch_status_var.set("Profile Autoswitch: DISABLED    Click me to start")
+        autoswitch_status_label.config(fg='white', bg='orange red', cursor="hand2")
+
+def open_save_folder():
+    messagebox.showinfo("Info", "* Copy config.txt elsewhere to make a backup!\n\n* Close the app then copy it back to restore.")
+    webbrowser.open(save_path)
+
+dashboard_lf = LabelFrame(root, text="Dashboard", width=620, height=95)
 dashboard_lf.place(x=PADDING, y=60) 
 prev_profile_button = Button(dashboard_lf, text="Prev Profile", command=prev_prof_click)
 prev_profile_button.config(width=11, height=1)
-prev_profile_button.place(x=PADDING, y=5)
+prev_profile_button.place(x=410, y=5)
+
 next_profile_button = Button(dashboard_lf, text="Next Profile", command=next_prof_click)
 next_profile_button.config(width=11, height=1)
-next_profile_button.place(x=110, y=5)
+next_profile_button.place(x=510, y=5)
 
 user_manual_button = Button(dashboard_lf, text="User Manual", command=open_user_manual)
 user_manual_button.config(width=11, height=1)
-user_manual_button.place(x=210, y=5)
+user_manual_button.place(x=PADDING, y=5)
 
 discord_button = Button(dashboard_lf, text="Discord", command=open_discord)
 discord_button.config(width=11, height=1)
-discord_button.place(x=310, y=5)
+discord_button.place(x=110, y=5)
+
+discord_button = Button(dashboard_lf, text="Backup", command=open_save_folder)
+discord_button.config(width=11, height=1)
+discord_button.place(x=210, y=5)
+
+autoswitch_status_var = StringVar()
+autoswitch_status_var.set("Profile Autoswitch: ENABLED    Click me to stop")
+autoswitch_status_label = Label(master=dashboard_lf, textvariable=autoswitch_status_var, font='TkFixedFont', fg='white', bg='green', cursor="hand2")
+autoswitch_status_label.place(x=10, y=40)
+autoswitch_status_label.bind("<Button-1>", toggle_autoswitch)
 
 # --------------------
 
@@ -137,13 +163,18 @@ def duckypad_goto_profile(profile_number):
     global last_hid_profile
     if not 1 <= profile_number <= 31:
         return
-    if profile_number != last_hid_profile:
-        buffff = [0] * 64
-        buffff[0] = 5
-        buffff[2] = 1
-        buffff[3] = profile_number
+    if profile_number == last_hid_profile:
+        return
+    buffff = [0] * 64
+    buffff[0] = 5
+    buffff[2] = 1
+    buffff[3] = profile_number
+    try:
         hid_rw.duckypad_hid_write(buffff)
-        last_hid_profile = profile_number
+    except Exception as e:
+        print(traceback.format_exc())
+        logging.error(traceback.format_exc())
+    last_hid_profile = profile_number
 
 def update_current_app_and_title():
     root.after(250, update_current_app_and_title)
@@ -153,6 +184,8 @@ def update_current_app_and_title():
     current_window_title_var.set("Window title:  " + str(window_title))
 
     if rule_window is not None and rule_window.winfo_exists():
+        return
+    if is_autoswitch_enabled is False:
         return
 
     highlight_index = None
@@ -165,8 +198,6 @@ def update_current_app_and_title():
         window_title_condition = True
         if len(item['window_title']) > 0:
             window_title_condition = item['window_title'].lower() in window_title.lower()
-        # print(item)
-        # print(app_name_condition, window_title_condition)
         if app_name_condition and window_title_condition:
             duckypad_goto_profile(int(item['switch_to']))
             highlight_index = index
@@ -177,8 +208,6 @@ def update_current_app_and_title():
             profile_lstbox.itemconfig(index, fg='white', bg='green')
         else:
             profile_lstbox.itemconfig(index, fg='black', bg='white')
-    
-    # print('----------------')
 
 # ----------------
 
@@ -227,10 +256,6 @@ def update_rule_list_display():
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-
-save_path = os.path.join(os.getenv('APPDATA'), 'dekuNukem')
-save_path = os.path.join(save_path, 'duckypad_autoswitcher')
-save_filename = os.path.join(save_path, 'config.txt')
 
 def save_config():
     try:
@@ -323,12 +348,6 @@ def create_rule_window(existing_rule=None):
     root.update()
     update_windows(windows_list_text_area)
 
-# def on_profile_lstbox_select(event):
-#     print('hi there!')
-
-# def new_rule_click():
-#     create_rule_window()
-
 def delete_rule_click():
     selection = profile_lstbox.curselection()
     if len(selection) <= 0:
@@ -376,13 +395,12 @@ def rule_shift_down():
     update_rule_list_display()
 
 rules_lf = LabelFrame(root, text="Autoswitch rules", width=620, height=410)
-rules_lf.place(x=PADDING, y=120) 
+rules_lf.place(x=PADDING, y=160) 
 
 profile_var = StringVar()
 profile_lstbox = Listbox(rules_lf, listvariable=profile_var, height=20, exportselection=0)
 profile_lstbox.place(x=PADDING, y=30, width=500)
 profile_lstbox.config(font='TkFixedFont')
-# profile_lstbox.bind('<<ListboxSelect>>', on_profile_lstbox_select)
 profile_lstbox.bind('<FocusOut>', lambda e: profile_lstbox.selection_clear(0, END))
 
 rule_header_label = Label(master=rules_lf, text="Enabled   App name          Window Title                Profile", font='TkFixedFont')
@@ -417,7 +435,8 @@ try:
         autoswitch_rules_list = json.load(json_file)
     update_rule_list_display()
 except Exception as e:
-    print(e)
+    print(traceback.format_exc())
+    logging.error(traceback.format_exc())
 
 # ------------------
 
@@ -440,7 +459,7 @@ def print_fw_update_label(this_version):
         dp_fw_update_label.unbind("<Button-1>")
 
 updates_lf = LabelFrame(root, text="Updates", width=620, height=80)
-updates_lf.place(x=PADDING, y=530)
+updates_lf.place(x=PADDING, y=570)
 
 pc_app_update_label = Label(master=updates_lf)
 pc_app_update_label.place(x=5, y=5)
@@ -462,5 +481,5 @@ dp_fw_update_label.place(x=5, y=30)
 # ------------------
 
 root.after(500, find_duckypad)
-root.after(500, update_current_app_and_title)
+root.after(250, update_current_app_and_title)
 root.mainloop()
