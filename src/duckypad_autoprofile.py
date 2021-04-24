@@ -17,6 +17,7 @@ import logging
 
 save_path = os.path.join(os.getenv('APPDATA'), 'dekuNukem')
 save_path = os.path.join(save_path, 'duckypad_autoswitcher')
+ensure_dir(save_path)
 save_filename = os.path.join(save_path, 'config.txt')
 logging_filename = os.path.join(save_path, 'debug_log.txt')
 logging.basicConfig(level=logging.DEBUG, filename=logging_filename, format='%(asctime)s %(levelname)s %(message)s')
