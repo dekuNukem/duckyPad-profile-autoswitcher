@@ -15,6 +15,10 @@ import check_update
 import sys
 import logging
 
+def ensure_dir(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
 save_path = os.path.join(os.getenv('APPDATA'), 'dekuNukem')
 save_path = os.path.join(save_path, 'duckypad_autoswitcher')
 ensure_dir(save_path)
@@ -253,10 +257,6 @@ def make_rule_str(rule_dict):
 
 def update_rule_list_display():
     profile_var.set([make_rule_str(x) for x in autoswitch_rules_list])
-
-def ensure_dir(dir_path):
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
 
 def save_config():
     try:
