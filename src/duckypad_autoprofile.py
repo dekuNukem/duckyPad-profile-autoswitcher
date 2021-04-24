@@ -30,7 +30,7 @@ default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
     default_button_color = 'grey'
 
-THIS_VERSION_NUMBER = '0.0.1'
+THIS_VERSION_NUMBER = '0.0.2'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
