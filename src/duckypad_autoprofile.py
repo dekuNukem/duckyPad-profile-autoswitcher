@@ -57,10 +57,10 @@ def find_duckypad():
         return
     
 def update_windows(textbox):
-    windows_str = 'Application' + ' '*9 + "Window Title\n"
-    windows_str += "------------------------------------\n"
+    windows_str = 'Application' + ' '*14 + "Window Title\n"
+    windows_str += "-------------------------------------\n"
     for item in get_window.get_list_of_all_windows():
-        gap = 20 - len(item[0])
+        gap = 25 - len(item[0])
         windows_str += str(item[0]) + ' '*gap + str(item[1]) + '\n'
     textbox.config(state=NORMAL)
     textbox.delete(1.0, "end")
