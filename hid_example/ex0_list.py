@@ -1,3 +1,12 @@
+"""
+duckyPad HID example: List HID devices
+
+For more details, see:
+
+https://github.com/dekuNukem/duckyPad-profile-autoswitcher/blob/master/HID_details.md
+
+"""
+
 import hid
 
 for device_dict in hid.enumerate():

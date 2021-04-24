@@ -1,3 +1,12 @@
+"""
+duckyPad HID example: HID write
+
+For more details, see:
+
+https://github.com/dekuNukem/duckyPad-profile-autoswitcher/blob/master/HID_details.md
+
+"""
+
 import hid
 
 PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
@@ -13,9 +22,9 @@ def get_duckypad_path():
 	return None
 
 pc_to_duckypad_buf = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
-pc_to_duckypad_buf[0] = 5
-pc_to_duckypad_buf[1] = 255
-pc_to_duckypad_buf[2] = 3
+pc_to_duckypad_buf[0] = 5	# HID Usage ID, always 5
+pc_to_duckypad_buf[1] = 0	# Sequence Number
+pc_to_duckypad_buf[2] = 3	# Command type
 
 duckypad_path = get_duckypad_path()
 h.open_path(duckypad_path)
