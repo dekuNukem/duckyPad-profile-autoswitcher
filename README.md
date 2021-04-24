@@ -78,7 +78,7 @@ That's pretty much it! Just leave the app running and duckyPad will do its thing
 
 Of course, now that duckyPad supports HID communication, you can write your own program to control it from PC!
 
-Click me for details!
+[Click me for details](HID_details.md)!
 
 ## Questions or Comments?
 
