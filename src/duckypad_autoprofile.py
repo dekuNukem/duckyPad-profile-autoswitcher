@@ -44,6 +44,8 @@ def duckypad_connect():
     # print("def duckypad_connect():")
     logging.info("def duckypad_connect():")
     global fw_update_checked
+    global button_pressed
+    button_pressed = True
     connection_info_str.set("Looking for duckyPad...")
 
     result = False
@@ -234,15 +236,18 @@ def t1_worker():
         duckypad_goto_profile(profile_switch_queue)
         time.sleep(0.2)
 
+button_pressed = False
+
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
     # logging.info("def update_current_app_and_title():")
     logging.info(".")
     global profile_switch_queue
+    global button_pressed
 
     root.after(250, update_current_app_and_title)
 
-    if hid_rw.is_hid_open is False:
+    if hid_rw.is_hid_open is False and button_pressed is True:
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
 
