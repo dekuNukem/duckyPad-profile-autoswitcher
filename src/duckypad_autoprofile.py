@@ -111,7 +111,7 @@ def next_prof_click():
         logging.error(traceback.format_exc())
 
 root = Tk()
-root.title("duckyPad profile auto switcher " + THIS_VERSION_NUMBER)
+root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER + " [BETA TEST VERSION]")
 root.geometry(str(MAIN_WINDOW_WIDTH) + "x" + str(MAIN_WINDOW_HEIGHT))
 root.resizable(width=FALSE, height=FALSE)
 
