@@ -55,13 +55,16 @@ def duckypad_connect():
     if result is False:
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
+        logging.info("duckyPad not found")
         return
 
     connection_info_str.set("duckyPad connected!")
     connection_info_label.config(foreground='navy')
+    logging.info("duckyPad found!")
     try:
         result = hid_rw.duckypad_get_info()
         connection_info_str.set(f"duckyPad found!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
+        logging.info("has extra info")
         if fw_update_checked is False:
             print_fw_update_label(result['fw_ver'])
             fw_update_checked = True
