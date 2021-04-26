@@ -30,7 +30,7 @@ default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
     default_button_color = 'grey'
 
-THIS_VERSION_NUMBER = '0.0.2'
+THIS_VERSION_NUMBER = '0.0.3'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -38,29 +38,31 @@ fw_update_checked = False
 
 logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
-def find_duckypad():
+def duckypad_connect():
     global fw_update_checked
-    root.after(500, find_duckypad)
-    if hid_rw.get_duckypad_path() is None:
-        connection_info_str.set("Looking for duckyPad...")
+    try:
+        result = hid_rw.duckypad_init()
+    except Exception as e:
+        print(traceback.format_exc())
+        logging.error(traceback.format_exc())
+
+    if result is False:
+        connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
         return
 
-    connection_info_str.set("duckyPad found!")
+    connection_info_str.set("duckyPad connected!")
     connection_info_label.config(foreground='navy')
-
     try:
         result = hid_rw.duckypad_get_info()
         connection_info_str.set(f"duckyPad found!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
-        connection_info_label.config(foreground='navy')
-        if result is not None and fw_update_checked is False:
+        if fw_update_checked is False:
             print_fw_update_label(result['fw_ver'])
             fw_update_checked = True
     except Exception as e:
-        # print(traceback.format_exc())
-        # logging.error(traceback.format_exc())
-        return
-    
+        print(traceback.format_exc())
+        logging.error(traceback.format_exc())
+
 def update_windows(textbox):
     windows_str = 'Application' + ' '*14 + "Window Title\n"
     windows_str += "-------------------------------------\n"
@@ -92,10 +94,15 @@ root.resizable(width=FALSE, height=FALSE)
 # --------------------
 
 connection_info_str = StringVar()
+connection_info_str.set("Press Connect button")
 connection_info_lf = LabelFrame(root, text="Connection", width=620, height=60)
 connection_info_lf.place(x=PADDING, y=0) 
 connection_info_label = Label(master=connection_info_lf, textvariable=connection_info_str)
-connection_info_label.place(x=PADDING, y=5)
+connection_info_label.place(x=110, y=5)
+
+connection_button = Button(connection_info_lf, text="Connect", command=duckypad_connect)
+connection_button.config(width=11, height=1)
+connection_button.place(x=PADDING, y=5)
 
 # --------------------
 
@@ -481,6 +488,6 @@ dp_fw_update_label.place(x=5, y=30)
 
 # ------------------
 
-root.after(500, find_duckypad)
+# root.after(500, duckypad_connect)
 root.after(250, update_current_app_and_title)
 root.mainloop()
