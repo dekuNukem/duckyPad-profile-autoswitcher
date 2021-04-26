@@ -14,6 +14,7 @@ import webbrowser
 import check_update
 import sys
 import logging
+import threading
 
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
@@ -177,6 +178,8 @@ last_hid_profile = None
 
 def duckypad_goto_profile(profile_number):
     global last_hid_profile
+    if profile_number is None:
+        return
     if not 1 <= profile_number <= 31:
         return
     if profile_number == last_hid_profile:
@@ -192,8 +195,21 @@ def duckypad_goto_profile(profile_number):
         logging.error(traceback.format_exc())
     last_hid_profile = profile_number
 
+profile_switch_queue = None
+
+def t1_worker():
+    while(1):
+        duckypad_goto_profile(profile_switch_queue)
+        time.sleep(0.2)
+
 def update_current_app_and_title():
+    global profile_switch_queue
+
     root.after(250, update_current_app_and_title)
+
+    if hid_rw.is_hid_open is False:
+        connection_info_str.set("duckyPad not found")
+        connection_info_label.config(foreground='red')
 
     window_id, app_name, window_title = get_window.get_active_window()
     current_app_name_var.set("App name:      " + str(app_name))
@@ -215,7 +231,7 @@ def update_current_app_and_title():
         if len(item['window_title']) > 0:
             window_title_condition = item['window_title'].lower() in window_title.lower()
         if app_name_condition and window_title_condition:
-            duckypad_goto_profile(int(item['switch_to']))
+            profile_switch_queue = int(item['switch_to'])
             highlight_index = index
             break
 
@@ -492,6 +508,8 @@ dp_fw_update_label.place(x=5, y=30)
 
 # ------------------
 
-# root.after(500, duckypad_connect)
+t1 = threading.Thread(target=t1_worker, daemon=True)
+t1.start()
+
 root.after(250, update_current_app_and_title)
 root.mainloop()

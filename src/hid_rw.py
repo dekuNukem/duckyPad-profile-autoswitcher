@@ -61,9 +61,10 @@ def duckypad_hid_write(hid_buf_64b):
         h.write(hid_buf_64b)
         result = hid_read()
     except Exception as e:
-        raise OSError('duckyPad write error')
         h.close()
         is_hid_open = False
+        raise OSError('duckyPad write error')
+
     return result
 
 # print("Writing data...")
