@@ -25,7 +25,7 @@ save_path = os.path.join(save_path, 'duckypad_autoswitcher')
 ensure_dir(save_path)
 save_filename = os.path.join(save_path, 'config.txt')
 logging_filename = os.path.join(save_path, 'debug_log.txt')
-logging.basicConfig(level=logging.DEBUG, filename=logging_filename, format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, filename=logging_filename, filemode='w', format='%(asctime)s %(levelname)s %(message)s')
 
 default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
@@ -40,6 +40,8 @@ fw_update_checked = False
 logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
 def duckypad_connect():
+    # print("def duckypad_connect():")
+    logging.info("def duckypad_connect():")
     global fw_update_checked
     connection_info_str.set("Looking for duckyPad...")
 
@@ -47,7 +49,7 @@ def duckypad_connect():
     try:
         result = hid_rw.duckypad_init()
     except Exception as e:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         logging.error(traceback.format_exc())
 
     if result is False:
@@ -64,10 +66,12 @@ def duckypad_connect():
             print_fw_update_label(result['fw_ver'])
             fw_update_checked = True
     except Exception as e:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         logging.error(traceback.format_exc())
 
 def update_windows(textbox):
+    # print("def update_windows(textbox):")
+    logging.info("def update_windows(textbox):")
     windows_str = 'Application' + ' '*14 + "Window Title\n"
     windows_str += "-------------------------------------\n"
     for item in get_window.get_list_of_all_windows():
@@ -79,12 +83,16 @@ def update_windows(textbox):
     textbox.config(state=DISABLED)
 
 def prev_prof_click():
+    # print("def prev_prof_click():")
+    logging.info("def prev_prof_click():")
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 2
     hid_rw.duckypad_hid_write(buffff)
 
 def next_prof_click():
+    # print("def next_prof_click():")
+    logging.info("def next_prof_click():")
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 3
@@ -116,15 +124,21 @@ is_autoswitch_enabled = True
 discord_link_url = "https://raw.githubusercontent.com/dekuNukem/duckyPad/master/resources/discord_link.txt"
 
 def open_user_manual():
+    # print("def open_user_manual():")
+    logging.info("def open_user_manual():")
     webbrowser.open('https://github.com/dekuNukem/duckyPad-profile-autoswitcher#user-manual')
 
 def open_discord():
+    # print("def open_discord():")
+    logging.info("def open_discord():")
     try:
         webbrowser.open(str(urllib.request.urlopen(discord_link_url).read().decode('utf-8')).split('\n')[0])
     except Exception as e:
         messagebox.showerror("Error", "Failed to open discord link!\n"+str(e))
 
 def toggle_autoswitch(whatever):
+    # print("def toggle_autoswitch(whatever):")
+    logging.info("def toggle_autoswitch(whatever):")
     global is_autoswitch_enabled
     is_autoswitch_enabled = not is_autoswitch_enabled
     if is_autoswitch_enabled:
@@ -135,6 +149,8 @@ def toggle_autoswitch(whatever):
         autoswitch_status_label.config(fg='white', bg='orange red', cursor="hand2")
 
 def open_save_folder():
+    # print("def open_save_folder():")
+    logging.info("def open_save_folder():")
     messagebox.showinfo("Info", "* Copy config.txt elsewhere to make a backup!\n\n* Close the app then copy it back to restore.")
     webbrowser.open(save_path)
 
@@ -184,6 +200,8 @@ def duckypad_goto_profile(profile_number):
         return
     if profile_number == last_hid_profile:
         return
+    # print("def duckypad_goto_profile(profile_number):")
+    logging.info("def duckypad_goto_profile(profile_number):")
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 1
@@ -191,18 +209,23 @@ def duckypad_goto_profile(profile_number):
     try:
         hid_rw.duckypad_hid_write(buffff)
     except Exception as e:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         logging.error(traceback.format_exc())
     last_hid_profile = profile_number
 
 profile_switch_queue = None
 
 def t1_worker():
+    # print("def t1_worker():")
+    logging.info("def t1_worker():")
     while(1):
         duckypad_goto_profile(profile_switch_queue)
         time.sleep(0.2)
 
 def update_current_app_and_title():
+    # print("def update_current_app_and_title():")
+    # logging.info("def update_current_app_and_title():")
+    logging.info(".")
     global profile_switch_queue
 
     root.after(250, update_current_app_and_title)
@@ -249,9 +272,13 @@ switch_to_entrybox = None
 autoswitch_rules_list = []
 
 def clean_input(str_input):
+    # print("def clean_input(str_input):")
+    logging.info("def clean_input(str_input):")
     return str_input.strip()
 
 def check_profile_number(raw_str):
+    # print("def check_profile_number(raw_str):")
+    logging.info("def check_profile_number(raw_str):")
     try:
         profile_number = int(clean_input(raw_str))
     except Exception:
@@ -261,6 +288,8 @@ def check_profile_number(raw_str):
     return None
 
 def make_rule_str(rule_dict):
+    # print("def make_rule_str(rule_dict):")
+    logging.info("def make_rule_str(rule_dict):")
     rule_str = ''
     if rule_dict['enabled']:
         rule_str += "  * "
@@ -283,9 +312,13 @@ def make_rule_str(rule_dict):
     return rule_str
 
 def update_rule_list_display():
+    # print("def update_rule_list_display():")
+    logging.info("def update_rule_list_display():")
     profile_var.set([make_rule_str(x) for x in autoswitch_rules_list])
 
 def save_config():
+    # print("def save_config():")
+    logging.info("def save_config():")
     try:
         ensure_dir(save_path)
         with open(save_filename, 'w', encoding='utf8') as save_file:
@@ -294,6 +327,8 @@ def save_config():
         messagebox.showerror("Error", "Save failed!\n\n"+str(traceback.format_exc()))
 
 def save_rule_click(window, this_rule):
+    # print("def save_rule_click(window, this_rule):")
+    logging.info("def save_rule_click(window, this_rule):")
     if this_rule is None:
         rule_dict = {}
         rule_dict["app_name"] = clean_input(app_name_entrybox.get())
@@ -316,6 +351,8 @@ def save_rule_click(window, this_rule):
 rule_window = None
 
 def create_rule_window(existing_rule=None):
+    # print("def create_rule_window(existing_rule=None):")
+    logging.info("def create_rule_window(existing_rule=None):")
     global rule_window
     global app_name_entrybox
     global window_name_entrybox
@@ -377,6 +414,8 @@ def create_rule_window(existing_rule=None):
     update_windows(windows_list_text_area)
 
 def delete_rule_click():
+    # print("def delete_rule_click():")
+    logging.info("def delete_rule_click():")
     selection = profile_lstbox.curselection()
     if len(selection) <= 0:
         return
@@ -385,12 +424,16 @@ def delete_rule_click():
     save_config()
 
 def edit_rule_click():
+    # print("def edit_rule_click():")
+    logging.info("def edit_rule_click():")
     selection = profile_lstbox.curselection()
     if len(selection) <= 0:
         return
     create_rule_window(autoswitch_rules_list[selection[0]])
 
 def toggle_rule_click():
+    # print("def toggle_rule_click():")
+    logging.info("def toggle_rule_click():")
     selection = profile_lstbox.curselection()
     if len(selection) <= 0:
         return
@@ -399,6 +442,8 @@ def toggle_rule_click():
     save_config()
 
 def rule_shift_up():
+    # print("def rule_shift_up():")
+    logging.info("def rule_shift_up():")
     selection = profile_lstbox.curselection()
     if len(selection) <= 0 or selection[0] == 0:
         return
@@ -411,6 +456,8 @@ def rule_shift_up():
     update_rule_list_display()
 
 def rule_shift_down():
+    # print("def rule_shift_down():")
+    logging.info("def rule_shift_down():")
     selection = profile_lstbox.curselection()
     if len(selection) <= 0 or selection[0] == len(autoswitch_rules_list) - 1:
         return
@@ -463,18 +510,24 @@ try:
         autoswitch_rules_list = json.load(json_file)
     update_rule_list_display()
 except Exception as e:
-    print(traceback.format_exc())
+    # print(traceback.format_exc())
     logging.error(traceback.format_exc())
 
 # ------------------
 
 def fw_update_click(what):
+    # print("def fw_update_click(what):")
+    logging.info("def fw_update_click(what):")
     webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/firmware_updates_and_version_history.md')
 
 def app_update_click(event):
+    # print("def app_update_click(event):")
+    logging.info("def app_update_click(event):")
     webbrowser.open('https://github.com/dekuNukem/duckyPad-profile-autoswitcher/releases')
 
 def print_fw_update_label(this_version):
+    # print("def print_fw_update_label(this_version):")
+    logging.info("def print_fw_update_label(this_version):")
     fw_result = check_update.get_firmware_update_status(this_version)
     if fw_result == 0:
         dp_fw_update_label.config(text='duckyPad firmware (' + str(this_version) +'): Up to date', fg='black', bg=default_button_color)
