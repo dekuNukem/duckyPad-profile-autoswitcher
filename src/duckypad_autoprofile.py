@@ -40,6 +40,9 @@ logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
 def duckypad_connect():
     global fw_update_checked
+    connection_info_str.set("Looking for duckyPad...")
+
+    result = False
     try:
         result = hid_rw.duckypad_init()
     except Exception as e:
@@ -94,11 +97,12 @@ root.resizable(width=FALSE, height=FALSE)
 # --------------------
 
 connection_info_str = StringVar()
-connection_info_str.set("Press Connect button")
+connection_info_str.set("<--- Press Connect button")
 connection_info_lf = LabelFrame(root, text="Connection", width=620, height=60)
 connection_info_lf.place(x=PADDING, y=0) 
 connection_info_label = Label(master=connection_info_lf, textvariable=connection_info_str)
 connection_info_label.place(x=110, y=5)
+connection_info_label.config(foreground='orange red')
 
 connection_button = Button(connection_info_lf, text="Connect", command=duckypad_connect)
 connection_button.config(width=11, height=1)
