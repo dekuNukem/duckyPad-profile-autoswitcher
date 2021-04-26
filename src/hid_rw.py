@@ -1,6 +1,6 @@
 import hid
 import time
-import timeit
+import logging
 
 PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
 DUCKYPAD_TO_PC_HID_BUF_SIZE = 32
@@ -9,6 +9,7 @@ h = hid.device()
 is_hid_open = False
 
 def duckypad_init():
+    logging.info("def duckypad_init():")
     global h
     global is_hid_open
     h.close()
@@ -21,6 +22,7 @@ def duckypad_init():
     return True
 
 def duckypad_get_info():
+    logging.info("def duckypad_get_info():")
     global is_hid_open
     if is_hid_open is False:
         raise OSError('duckyPad not connected')
@@ -34,6 +36,7 @@ def duckypad_get_info():
     return dpinfo
 
 def get_duckypad_path():
+    logging.info("def get_duckypad_path():")
     for device_dict in hid.enumerate():
         if device_dict['vendor_id'] == 0x0483 and \
         device_dict['product_id'] == 0xd11c and \
@@ -42,6 +45,7 @@ def get_duckypad_path():
     return None
 
 def hid_read():
+    logging.info("def hid_read():")
     read_start = time.time()
     while time.time() - read_start <= 0.5:
         result = h.read(DUCKYPAD_TO_PC_HID_BUF_SIZE)
@@ -51,6 +55,7 @@ def hid_read():
     return []
 
 def duckypad_hid_write(hid_buf_64b):
+    logging.info("def duckypad_hid_write(hid_buf_64b):")
     global is_hid_open
     if is_hid_open is False:
         raise OSError('duckyPad not connected')

@@ -1,6 +1,4 @@
 import time
-import hid_rw
-import get_window
 from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
@@ -11,10 +9,13 @@ import traceback
 import json
 import os
 import webbrowser
-import check_update
 import sys
-import logging
 import threading
+import logging
+import hid_rw
+import get_window
+import check_update
+
 
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
@@ -25,7 +26,7 @@ save_path = os.path.join(save_path, 'duckypad_autoswitcher')
 ensure_dir(save_path)
 save_filename = os.path.join(save_path, 'config.txt')
 logging_filename = os.path.join(save_path, 'debug_log.txt')
-logging.basicConfig(level=logging.INFO, filename=logging_filename, filemode='w', format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, filename=logging_filename, filemode='w', format='%(asctime)s %(filename)s %(levelname)s %(message)s')
 
 default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
