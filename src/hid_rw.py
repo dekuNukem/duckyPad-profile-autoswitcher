@@ -38,6 +38,7 @@ def duckypad_get_info():
 def get_duckypad_path():
     logging.info("def get_duckypad_path():")
     for device_dict in hid.enumerate():
+        logging.info(str(device_dict))
         if device_dict['vendor_id'] == 0x0483 and \
         device_dict['product_id'] == 0xd11c and \
         device_dict['usage'] == 58:
@@ -69,7 +70,6 @@ def duckypad_hid_write(hid_buf_64b):
         h.close()
         is_hid_open = False
         raise OSError('duckyPad write error')
-
     return result
 
 # print("Writing data...")
