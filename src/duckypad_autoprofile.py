@@ -91,7 +91,11 @@ def prev_prof_click():
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 2
-    hid_rw.duckypad_hid_write(buffff)
+    try:
+        hid_rw.duckypad_hid_write(buffff)
+    except Exception as e:
+        # print(traceback.format_exc())
+        logging.error(traceback.format_exc())
 
 def next_prof_click():
     # print("def next_prof_click():")
@@ -99,7 +103,11 @@ def next_prof_click():
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 3
-    hid_rw.duckypad_hid_write(buffff)
+    try:
+        hid_rw.duckypad_hid_write(buffff)
+    except Exception as e:
+        # print(traceback.format_exc())
+        logging.error(traceback.format_exc())
 
 root = Tk()
 root.title("duckyPad profile auto switcher " + THIS_VERSION_NUMBER)
