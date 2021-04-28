@@ -32,7 +32,7 @@ default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
     default_button_color = 'grey'
 
-THIS_VERSION_NUMBER = '0.0.3'
+THIS_VERSION_NUMBER = '0.0.4'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -156,10 +156,10 @@ def toggle_autoswitch(whatever):
     global is_autoswitch_enabled
     is_autoswitch_enabled = not is_autoswitch_enabled
     if is_autoswitch_enabled:
-        autoswitch_status_var.set("Profile Autoswitch: ENABLED     Click me to stop")
+        autoswitch_status_var.set("Profile Autoswitch: ACTIVE     Click me to stop")
         autoswitch_status_label.config(fg='white', bg='green', cursor="hand2")
     else:
-        autoswitch_status_var.set("Profile Autoswitch: DISABLED    Click me to start")
+        autoswitch_status_var.set("Profile Autoswitch: STOPPED    Click me to start")
         autoswitch_status_label.config(fg='white', bg='orange red', cursor="hand2")
 
 def open_save_folder():
@@ -191,7 +191,7 @@ discord_button.config(width=11, height=1)
 discord_button.place(x=210, y=5)
 
 autoswitch_status_var = StringVar()
-autoswitch_status_var.set("Profile Autoswitch: ENABLED    Click me to stop")
+autoswitch_status_var.set("Profile Autoswitch: ACTIVE    Click me to stop")
 autoswitch_status_label = Label(master=dashboard_lf, textvariable=autoswitch_status_var, font='TkFixedFont', fg='white', bg='green', cursor="hand2")
 autoswitch_status_label.place(x=10, y=40)
 autoswitch_status_label.bind("<Button-1>", toggle_autoswitch)
