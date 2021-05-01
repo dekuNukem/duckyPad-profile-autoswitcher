@@ -16,7 +16,6 @@ import hid_rw
 import get_window
 import check_update
 
-
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -142,8 +141,6 @@ connection_button.place(x=PADDING, y=5)
 
 # --------------------
 
-is_autoswitch_enabled = True
-
 discord_link_url = "https://raw.githubusercontent.com/dekuNukem/duckyPad/master/resources/discord_link.txt"
 
 def open_user_manual():
@@ -159,18 +156,23 @@ def open_discord():
     except Exception as e:
         messagebox.showerror("Error", "Failed to open discord link!\n"+str(e))
 
-def toggle_autoswitch(whatever):
-    # print("def toggle_autoswitch(whatever):")
-    logging.info("def toggle_autoswitch(whatever):")
-    global is_autoswitch_enabled
-    is_autoswitch_enabled = not is_autoswitch_enabled
-    if is_autoswitch_enabled:
+def refresh_autoswitch():
+    # print("def refresh_autoswitch():")
+    logging.info("def refresh_autoswitch():")
+    if config_dict['autoswitch_enabled']:
         autoswitch_status_var.set("Profile Autoswitch: ACTIVE     Click me to stop")
         autoswitch_status_label.config(fg='white', bg='green', cursor="hand2")
     else:
         autoswitch_status_var.set("Profile Autoswitch: STOPPED    Click me to start")
         autoswitch_status_label.config(fg='white', bg='orange red', cursor="hand2")
 
+def toggle_autoswitch(whatever):
+    # print("def toggle_autoswitch(whatever):")
+    logging.info("def toggle_autoswitch(whatever):")
+    config_dict['autoswitch_enabled'] = not config_dict['autoswitch_enabled']
+    save_config()
+    refresh_autoswitch()
+    
 def open_save_folder():
     # print("def open_save_folder():")
     logging.info("def open_save_folder():")
@@ -200,8 +202,7 @@ discord_button.config(width=11, height=1)
 discord_button.place(x=210, y=5)
 
 autoswitch_status_var = StringVar()
-autoswitch_status_var.set("Profile Autoswitch: ACTIVE    Click me to stop")
-autoswitch_status_label = Label(master=dashboard_lf, textvariable=autoswitch_status_var, font='TkFixedFont', fg='white', bg='green', cursor="hand2")
+autoswitch_status_label = Label(master=dashboard_lf, textvariable=autoswitch_status_var, font='TkFixedFont', cursor="hand2")
 autoswitch_status_label.place(x=10, y=40)
 autoswitch_status_label.bind("<Button-1>", toggle_autoswitch)
 
@@ -262,11 +263,11 @@ def update_current_app_and_title():
 
     if rule_window is not None and rule_window.winfo_exists():
         return
-    if is_autoswitch_enabled is False:
+    if config_dict['autoswitch_enabled'] is False:
         return
 
     highlight_index = None
-    for index, item in enumerate(autoswitch_rules_list):
+    for index, item in enumerate(config_dict['rules_list']):
         if item['enabled'] is False:
             continue
         app_name_condition = True
@@ -280,7 +281,7 @@ def update_current_app_and_title():
             highlight_index = index
             break
 
-    for index, item in enumerate(autoswitch_rules_list):
+    for index, item in enumerate(config_dict['rules_list']):
         if index == highlight_index:
             profile_lstbox.itemconfig(index, fg='white', bg='green')
         else:
@@ -291,7 +292,9 @@ def update_current_app_and_title():
 app_name_entrybox = None
 window_name_entrybox = None
 switch_to_entrybox = None
-autoswitch_rules_list = []
+config_dict = {}
+config_dict['rules_list'] = []
+config_dict['autoswitch_enabled'] = True
 
 def clean_input(str_input):
     # print("def clean_input(str_input):")
@@ -336,7 +339,7 @@ def make_rule_str(rule_dict):
 def update_rule_list_display():
     # print("def update_rule_list_display():")
     logging.info("def update_rule_list_display():")
-    profile_var.set([make_rule_str(x) for x in autoswitch_rules_list])
+    profile_var.set([make_rule_str(x) for x in config_dict['rules_list']])
 
 def save_config():
     # print("def save_config():")
@@ -344,7 +347,7 @@ def save_config():
     try:
         ensure_dir(save_path)
         with open(save_filename, 'w', encoding='utf8') as save_file:
-                save_file.write(json.dumps(autoswitch_rules_list, sort_keys=True))
+                save_file.write(json.dumps(config_dict, sort_keys=True))
     except Exception as e:
         messagebox.showerror("Error", "Save failed!\n\n"+str(traceback.format_exc()))
 
@@ -357,8 +360,8 @@ def save_rule_click(window, this_rule):
         rule_dict["window_title"] = clean_input(window_name_entrybox.get())
         rule_dict["switch_to"] = check_profile_number(switch_to_entrybox.get())
         rule_dict["enabled"] = True
-        if rule_dict["switch_to"] is not None and rule_dict not in autoswitch_rules_list:
-            autoswitch_rules_list.append(rule_dict)
+        if rule_dict["switch_to"] is not None and rule_dict not in config_dict['rules_list']:
+            config_dict['rules_list'].append(rule_dict)
             update_rule_list_display()
             save_config()
             window.destroy()
@@ -441,7 +444,7 @@ def delete_rule_click():
     selection = profile_lstbox.curselection()
     if len(selection) <= 0:
         return
-    autoswitch_rules_list.pop(selection[0])
+    config_dict['rules_list'].pop(selection[0])
     update_rule_list_display()
     save_config()
 
@@ -451,7 +454,7 @@ def edit_rule_click():
     selection = profile_lstbox.curselection()
     if len(selection) <= 0:
         return
-    create_rule_window(autoswitch_rules_list[selection[0]])
+    create_rule_window(config_dict['rules_list'][selection[0]])
 
 def toggle_rule_click():
     # print("def toggle_rule_click():")
@@ -459,7 +462,7 @@ def toggle_rule_click():
     selection = profile_lstbox.curselection()
     if len(selection) <= 0:
         return
-    autoswitch_rules_list[selection[0]]['enabled'] = not autoswitch_rules_list[selection[0]]['enabled']
+    config_dict['rules_list'][selection[0]]['enabled'] = not config_dict['rules_list'][selection[0]]['enabled']
     update_rule_list_display()
     save_config()
 
@@ -471,9 +474,9 @@ def rule_shift_up():
         return
     source = selection[0]
     destination = selection[0] - 1
-    autoswitch_rules_list[destination], autoswitch_rules_list[source] = autoswitch_rules_list[source], autoswitch_rules_list[destination]
+    config_dict['rules_list'][destination], config_dict['rules_list'][source] = config_dict['rules_list'][source], config_dict['rules_list'][destination]
     update_rule_list_display()
-    profile_lstbox.selection_clear(0, len(autoswitch_rules_list))
+    profile_lstbox.selection_clear(0, len(config_dict['rules_list']))
     profile_lstbox.selection_set(destination)
     update_rule_list_display()
 
@@ -481,13 +484,13 @@ def rule_shift_down():
     # print("def rule_shift_down():")
     logging.info("def rule_shift_down():")
     selection = profile_lstbox.curselection()
-    if len(selection) <= 0 or selection[0] == len(autoswitch_rules_list) - 1:
+    if len(selection) <= 0 or selection[0] == len(config_dict['rules_list']) - 1:
         return
     source = selection[0]
     destination = selection[0] + 1
-    autoswitch_rules_list[destination], autoswitch_rules_list[source] = autoswitch_rules_list[source], autoswitch_rules_list[destination]
+    config_dict['rules_list'][destination], config_dict['rules_list'][source] = config_dict['rules_list'][source], config_dict['rules_list'][destination]
     update_rule_list_display()
-    profile_lstbox.selection_clear(0, len(autoswitch_rules_list))
+    profile_lstbox.selection_clear(0, len(config_dict['rules_list']))
     profile_lstbox.selection_set(destination)
     update_rule_list_display()
 
@@ -529,11 +532,19 @@ delete_rule_button.place(x=520, y=300)
 
 try:
     with open(save_filename) as json_file:
-        autoswitch_rules_list = json.load(json_file)
+        temp = json.load(json_file)
+        if isinstance(temp, list):
+            config_dict['rules_list'] = temp
+        elif isinstance(temp, dict):
+            config_dict = temp
+        else:
+            raise ValueError("not a valid config file")
     update_rule_list_display()
 except Exception as e:
     # print(traceback.format_exc())
     logging.error(traceback.format_exc())
+
+refresh_autoswitch()
 
 # ------------------
 
