@@ -88,17 +88,30 @@ def update_windows(textbox):
     textbox.insert(1.0, windows_str)
     textbox.config(state=DISABLED)
 
+def ducky_write_with_retry(data_buf):
+    logging.info("def ducky_write_with_retry(data_buf):")
+    try:
+        hid_rw.duckypad_hid_write(data_buf)
+        return 0
+    except Exception as e:
+        # print(traceback.format_exc())
+        logging.error("First try: " + str(traceback.format_exc()))
+        try:
+            duckypad_connect()
+            hid_rw.duckypad_hid_write(data_buf)
+            return 0
+        except Exception as e:
+            logging.error("Second try: " + str(traceback.format_exc()))
+    return 1
+
+
 def prev_prof_click():
     # print("def prev_prof_click():")
     logging.info("def prev_prof_click():")
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 2
-    try:
-        hid_rw.duckypad_hid_write(buffff)
-    except Exception as e:
-        # print(traceback.format_exc())
-        logging.error(traceback.format_exc())
+    ducky_write_with_retry(buffff)
 
 def next_prof_click():
     # print("def next_prof_click():")
@@ -106,11 +119,7 @@ def next_prof_click():
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 3
-    try:
-        hid_rw.duckypad_hid_write(buffff)
-    except Exception as e:
-        # print(traceback.format_exc())
-        logging.error(traceback.format_exc())
+    ducky_write_with_retry(buffff)
 
 root = Tk()
 root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER + " [BETA TEST VERSION]")
@@ -220,11 +229,7 @@ def duckypad_goto_profile(profile_number):
     buffff[0] = 5
     buffff[2] = 1
     buffff[3] = profile_number
-    try:
-        hid_rw.duckypad_hid_write(buffff)
-    except Exception as e:
-        # print(traceback.format_exc())
-        logging.error(traceback.format_exc())
+    ducky_write_with_retry(buffff)
     last_hid_profile = profile_number
 
 profile_switch_queue = None
