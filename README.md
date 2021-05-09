@@ -6,11 +6,11 @@ This app allows your duckyPad to **switch profiles automatically** based on **cu
 
 ![Alt text](resources/switch.gif)
 
-⚠️ This app is currently under beta testing, there might be some bugs so use at your own risk!
+⚠️ This software is fairly new, and there might be some bugs or rough edges. [Let me know](#questions-or-comments) if you run into any problems!
 
 ## User Manual
 
-### Download and launch the app
+### Download and Launch the App
 
 [Head over here](https://github.com/dekuNukem/duckyPad-profile-autoswitcher/releases) and download the latest release.
 
@@ -28,7 +28,7 @@ For Windows 10, click `More info` and then `Run anyway`.
 
 ![Alt text](resources/defender.png)
 
-### Using the app
+### Using the App
 
 Once plugged in, your duckyPad should show up in the `Connection` section.
 
