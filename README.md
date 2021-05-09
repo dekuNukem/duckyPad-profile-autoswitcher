@@ -42,8 +42,6 @@ You can use the buttons in `dashboard` section to open user manual, [discord](ht
 
 Profile autoswitching is based on a list of *rules*.
 
-Each rule contains **application name**, **window title**, and the **profile number** to switch to.
-
 To create a new rule, click `New rule...` button:
 
 ![Alt text](resources/rulebox.png)
@@ -51,6 +49,8 @@ To create a new rule, click `New rule...` button:
 A new window should pop up:
 
 ![Alt text](resources/rulewin.png)
+
+Each rule contains **application name**, **window title**, and the **profile number** to switch to.
 
 Type in the keywords you want to match in the text box. They are **case-insensitive**, leave blank to match all.
 
