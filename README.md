@@ -74,6 +74,16 @@ Back to the main window, duckyPad should now automatically switch profile once a
 
 That's pretty much it! Just leave the app running and duckyPad will do its thing!
 
+## Launch Autoswitcher on Windows Startup
+
+If you want to launch autoswitcher with Windows, The easiest way is to place a shortcut in the Startup folder:
+
+* Select the autoswitcher app and press `Ctrl+C`.
+
+* Press `Win+R` to open the `Run...` dialog, enter `shell:startup` and click OK. This will open the Startup folder.
+
+* Right click inside the window, and click "Paste Shortcut". 
+
 ## HID Command Protocol
 
 Of course, now that duckyPad supports HID communication, you can write your own program to control it from PC!
