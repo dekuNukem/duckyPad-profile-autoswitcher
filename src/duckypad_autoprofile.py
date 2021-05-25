@@ -121,7 +121,7 @@ def next_prof_click():
     ducky_write_with_retry(buffff)
 
 root = Tk()
-root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER + " [BETA TEST VERSION]")
+root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER)
 root.geometry(str(MAIN_WINDOW_WIDTH) + "x" + str(MAIN_WINDOW_HEIGHT))
 root.resizable(width=FALSE, height=FALSE)
 
