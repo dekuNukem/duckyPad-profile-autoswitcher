@@ -298,7 +298,7 @@ def update_current_app_and_title():
         if len(item['window_title']) > 0:
             window_title_condition = item['window_title'].lower() in window_title.lower()
         if app_name_condition and window_title_condition:
-            profile_switch_queue = int(item['switch_to'])
+            profile_switch_queue = item['switch_to']
             highlight_index = index
             break
 
@@ -352,7 +352,7 @@ def make_rule_str(rule_dict):
     gap = 29 - len(rule_str)
     rule_str += ' '*gap + next_item
 
-    gap = 59 - len(rule_str)
+    gap = 58 - len(rule_str)
     rule_str += ' '*gap + str(rule_dict['switch_to'])
 
     return rule_str
@@ -381,12 +381,12 @@ def save_rule_click(window, this_rule):
         rule_dict["window_title"] = clean_input(window_name_entrybox.get())
         rule_dict["switch_to"] = check_profile_number(switch_to_entrybox.get())
         rule_dict["enabled"] = True
-        if rule_dict["switch_to"] is not None and rule_dict not in config_dict['rules_list']:
+        if rule_dict not in config_dict['rules_list']:
             config_dict['rules_list'].append(rule_dict)
             update_rule_list_display()
             save_config()
             window.destroy()
-    elif this_rule is not None and check_profile_number(switch_to_entrybox.get()) is not None:
+    elif this_rule is not None:
         this_rule["app_name"] = clean_input(app_name_entrybox.get())
         this_rule["window_title"] = clean_input(window_name_entrybox.get())
         this_rule["switch_to"] = check_profile_number(switch_to_entrybox.get())
@@ -430,7 +430,10 @@ def create_rule_window(existing_rule=None):
     if existing_rule is not None:
         app_name_entrybox.insert(0, existing_rule["app_name"])
         window_name_entrybox.insert(0, existing_rule["window_title"])
-        switch_to_entrybox.insert(0, existing_rule["switch_to"])
+        if existing_rule["switch_to"] is None:
+            switch_to_entrybox.insert(0, "")
+        else:
+            switch_to_entrybox.insert(0, str(existing_rule["switch_to"]))
 
     rule_done_button = Button(rule_edit_lf, text="Save", command=lambda:save_rule_click(rule_window, existing_rule))
     rule_done_button.config(width=75, height=1)
