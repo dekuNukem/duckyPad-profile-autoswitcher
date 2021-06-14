@@ -15,12 +15,21 @@ import logging
 import hid_rw
 import get_window
 import check_update
+import platform
 
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
-save_path = os.path.join(os.getenv('APPDATA'), 'dekuNukem')
+p = platform.system()
+if p == 'Darwin':
+    save_path = os.path.join(os.getenv('HOME'), 'Library/dekuNukem')
+elif p == 'Windows':
+    save_path = os.path.join(os.getenv('APPDATA'), 'dekuNukem')
+else:
+    raise 'Platform %s not supported.' % p
+
+
 save_path = os.path.join(save_path, 'duckypad_autoswitcher')
 ensure_dir(save_path)
 save_filename = os.path.join(save_path, 'config.txt')
@@ -257,7 +266,7 @@ def update_current_app_and_title():
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
 
-    window_id, app_name, window_title = get_window.get_active_window()
+    app_name, window_title = get_window.get_active_window()
     current_app_name_var.set("App name:      " + str(app_name))
     current_window_title_var.set("Window title:  " + str(window_title))
 
