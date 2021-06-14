@@ -17,6 +17,7 @@ import get_window
 import check_update
 import platform
 from appdirs import *
+import subprocess
 
 def is_root():
     return os.getuid() == 0
@@ -201,7 +202,12 @@ def open_save_folder():
     # print("def open_save_folder():")
     logging.info("def open_save_folder():")
     messagebox.showinfo("Info", "* Copy config.txt elsewhere to make a backup!\n\n* Close the app then copy it back to restore.")
-    webbrowser.open(save_path)
+    if 'darwin' in sys.platform:
+        subprocess.Popen(["open", save_path])
+    elif 'linux' in sys.platform:
+        subprocess.Popen(["xdg-open", save_path])
+    else:
+        webbrowser.open(backup_path)
 
 dashboard_lf = LabelFrame(root, text="Dashboard", width=620, height=95)
 dashboard_lf.place(x=PADDING, y=60) 
