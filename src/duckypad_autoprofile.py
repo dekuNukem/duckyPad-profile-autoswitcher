@@ -16,21 +16,19 @@ import hid_rw
 import get_window
 import check_update
 import platform
+from appdirs import *
+
+def is_root():
+    return os.getuid() == 0
 
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
-p = platform.system()
-if p == 'Darwin':
-    save_path = os.path.join(os.getenv('HOME'), 'Library/dekuNukem')
-elif p == 'Windows':
-    save_path = os.path.join(os.getenv('APPDATA'), 'dekuNukem')
-else:
-    raise 'Platform %s not supported.' % p
+appname = 'duckypad_autoswitcher'
+appauthor = 'dekuNukem'
+save_path = user_data_dir(appname, appauthor, roaming=True)
 
-
-save_path = os.path.join(save_path, 'duckypad_autoswitcher')
 ensure_dir(save_path)
 save_filename = os.path.join(save_path, 'config.txt')
 logging_filename = os.path.join(save_path, 'debug_log.txt')
@@ -48,25 +46,42 @@ fw_update_checked = False
 
 logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
-def duckypad_connect():
+def duckypad_connect(show_box=True):
     # print("def duckypad_connect():")
     logging.info("def duckypad_connect():")
     global fw_update_checked
-    global button_pressed
-    button_pressed = True
-    connection_info_str.set("Looking for duckyPad...")
+    # connection_info_str.set("Looking for duckyPad...")
 
-    result = False
-    try:
-        result = hid_rw.duckypad_init()
-    except Exception as e:
-        # print(traceback.format_exc())
-        logging.error(traceback.format_exc())
-
-    if result is False:
+    if hid_rw.get_duckypad_path() is None:
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
         logging.info("duckyPad not found")
+        return
+
+    init_success = True
+    try:
+        init_success = hid_rw.duckypad_init()
+    except Exception as e:
+        init_success = False
+        logging.error(traceback.format_exc())
+
+    if init_success is False:
+        connection_info_str.set("duckyPad detected but lacks permission")
+        connection_info_label.config(foreground='red')
+
+    if init_success is False and show_box is False:
+        return
+
+    if init_success is False and 'darwin' in sys.platform and is_root() is False:
+        if messagebox.askokcancel("Info", "duckyPad detected, but this app lacks permission to access it.\n\nClick OK to see instructions") is True:
+            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
+        return
+    elif init_success is False and 'darwin' in sys.platform and is_root() is True:
+        if messagebox.askokcancel("Info", "duckyPad detected, however, due to macOS restrictions, you'll need to enable some privacy settings.\n\nClick OK to learn how.") is True:
+            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
+        return
+    elif init_success is False:
+        messagebox.showinfo("Info", "Failed to connect to duckyPad")
         return
 
     connection_info_str.set("duckyPad connected!")
@@ -105,7 +120,7 @@ def ducky_write_with_retry(data_buf):
         # print(traceback.format_exc())
         logging.error("First try: " + str(traceback.format_exc()))
         try:
-            duckypad_connect()
+            duckypad_connect(show_box=False)
             hid_rw.duckypad_hid_write(data_buf)
             return 0
         except Exception as e:
@@ -251,20 +266,18 @@ def t1_worker():
         duckypad_goto_profile(profile_switch_queue)
         time.sleep(0.2)
 
-button_pressed = False
 
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
     # logging.info("def update_current_app_and_title():")
-    logging.info(".")
+    # logging.info(".")
     global profile_switch_queue
-    global button_pressed
 
     root.after(250, update_current_app_and_title)
 
-    if hid_rw.is_hid_open is False and button_pressed is True:
-        connection_info_str.set("duckyPad not found")
-        connection_info_label.config(foreground='red')
+    # if hid_rw.is_hid_open is False and button_pressed is True:
+    #     connection_info_str.set("duckyPad not found")
+    #     connection_info_label.config(foreground='red')
 
     app_name, window_title = get_window.get_active_window()
     current_app_name_var.set("App name:      " + str(app_name))

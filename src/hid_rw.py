@@ -9,9 +9,9 @@ h = hid.device()
 is_hid_open = False
 
 def duckypad_init():
-    logging.info("def duckypad_init():")
     global h
     global is_hid_open
+    logging.info("def duckypad_init():")
     h.close()
     duckypad_path = get_duckypad_path()
     if duckypad_path is None:
@@ -34,6 +34,9 @@ def duckypad_get_info():
     result = duckypad_hid_write(buffff)
     dpinfo['fw_ver'] = f'{result[3]}.{result[4]}.{result[5]}'
     return dpinfo
+
+def duckypad_hid_close():
+    h.close()
 
 def get_duckypad_path():
     logging.info("def get_duckypad_path():")
