@@ -31,7 +31,7 @@ def darwin_get_active_window():
     for window in windows:
         if window[Quartz.kCGWindowLayer] == 0:
             return window[Quartz.kCGWindowOwnerName], window.get(Quartz.kCGWindowName, 'unknown')
-    return None, None
+    return '', ''
 
 def darwin_get_list_of_all_windows():
     apps = []
@@ -53,7 +53,7 @@ def win_get_app_name(hwnd):
             exe = p.Name.rsplit('.', 1)[0]
             break
     except:
-        return None
+        return 'unknown'
     else:
         return exe
 
@@ -67,5 +67,5 @@ def win_get_list_of_all_windows():
 def win_get_active_window():
     active_window = gw.getActiveWindow()
     if active_window is None:
-        return None, None
+        return '', ''
     return (win_get_app_name(active_window._hWnd), active_window.title)

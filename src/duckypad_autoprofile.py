@@ -266,7 +266,6 @@ def t1_worker():
         duckypad_goto_profile(profile_switch_queue)
         time.sleep(0.2)
 
-
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
     # logging.info("def update_current_app_and_title():")
@@ -406,11 +405,11 @@ def create_rule_window(existing_rule=None):
     global switch_to_entrybox
     rule_window = Toplevel(root)
     rule_window.title("Edit rules")
-    rule_window.geometry("640x480")
+    rule_window.geometry("640x510")
     rule_window.resizable(width=FALSE, height=FALSE)
     rule_window.grab_set()
 
-    rule_edit_lf = LabelFrame(rule_window, text="Rules", width=620, height=100)
+    rule_edit_lf = LabelFrame(rule_window, text="Rules", width=620, height=130)
     rule_edit_lf.place(x=10, y=5)
 
     app_name_label = Label(master=rule_window, text="IF app name contains:")
@@ -434,16 +433,18 @@ def create_rule_window(existing_rule=None):
         switch_to_entrybox.insert(0, existing_rule["switch_to"])
 
     rule_done_button = Button(rule_edit_lf, text="Save", command=lambda:save_rule_click(rule_window, existing_rule))
-    rule_done_button.config(width=18, height=1)
-    rule_done_button.place(x=440, y=50)
+    rule_done_button.config(width=75, height=1)
+    rule_done_button.place(x=40, y=80)
 
     match_all_label = Label(master=rule_window, text="(leave blank to match all)")
     match_all_label.place(x=450, y=25)
     match_all_label2 = Label(master=rule_window, text="(leave blank to match all)")
     match_all_label2.place(x=450, y=50)
+    match_all_label3 = Label(master=rule_window, text="(leave blank for no action)")
+    match_all_label3.place(x=450, y=75)
 
     current_window_lf = LabelFrame(rule_window, text="Active window", width=620, height=80)
-    current_window_lf.place(x=10, y=110)
+    current_window_lf.place(x=PADDING, y=110+30)
 
     current_app_name_label = Label(master=current_window_lf, textvariable=current_app_name_var, font='TkFixedFont')
     current_app_name_label.place(x=10, y=5)
@@ -451,7 +452,7 @@ def create_rule_window(existing_rule=None):
     current_window_title_label.place(x=10, y=30)
 
     window_list_lf = LabelFrame(rule_window, text="All windows", width=620, height=270)
-    window_list_lf.place(x=PADDING, y=195) 
+    window_list_lf.place(x=PADDING, y=195+30) 
     window_list_fresh_button = Button(window_list_lf, text="Refresh", command=lambda:update_windows(windows_list_text_area))
     window_list_fresh_button.config(width=80, height=1)
     window_list_fresh_button.place(x=20, y=220)
