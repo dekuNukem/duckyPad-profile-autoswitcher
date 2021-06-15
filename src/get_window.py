@@ -41,6 +41,7 @@ def darwin_get_list_of_all_windows():
     for window in windows:
         apps.append((window[Quartz.kCGWindowOwnerName],
                     window.get(Quartz.kCGWindowName, 'unknown')))
+    apps = list(set(apps))
     apps = sorted(apps, key=lambda x: x[0])
     return apps
 
