@@ -28,6 +28,11 @@ For Windows 10, click `More info` and then `Run anyway`.
 
 ![Alt text](resources/defender.png)
 
+For macOS, **`RIGHT CLICK`** on the app and select `Open`. You might have to do it twice.
+
+![Alt text](resources/macos_warning.png)
+
+
 ### Using the App
 
 Once plugged in, your duckyPad should show up in the `Connection` section.
