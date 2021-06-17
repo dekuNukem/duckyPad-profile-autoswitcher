@@ -11,7 +11,7 @@ import hid
 import time
 
 PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
-DUCKYPAD_TO_PC_HID_BUF_SIZE = 32
+DUCKYPAD_TO_PC_HID_BUF_SIZE = 64
 
 h = hid.device()
 

@@ -32,7 +32,7 @@ The `Counted Buffer` device has the usage ID of 0x3a (58).
 
 The HID command buffer from **PC to duckyPad** is **64 Bytes**, meaning you must send a fixed 64B packet to duckyPad.
 
-The HID command buffer from **duckyPad to PC** is **32 Bytes**, meaning duckyPad will reply with a fixed 32B response.
+The HID command buffer from **duckyPad to PC** is also **64 Bytes**, meaning duckyPad will reply with a fixed 64B response.
 
 ## HID Examples
 
@@ -94,14 +94,14 @@ As mentioned before, duckyPad expects a **fixed 64-byte** packet from PC:
 
 ### duckyPad-to-PC
 
-Once received a packet from PC, duckyPad will reply with a **fixed 32-byte** response:
+Once received a packet from PC, duckyPad will reply with a **fixed 64-byte** response:
 
 |   Byte#  |            Description           |
 |:--------:|:--------------------------------:|
 |     0    |    HID Usage ID (always 0x04)    |
 |     1    |          Sequence number         |
 |     2    | Status. 0 = SUCCESS, 1 = ERROR. 2 = BUSY |
-| 3 ... 31 |             Payloads             |
+| 3 ... 63 |             Payloads             |
 
 * Byte 0 is always 0x04
 
@@ -138,7 +138,7 @@ If command type is 0x00, duckyPad will return its device information.
 |    5   |     Firmware version Patch     |
 | 7 - 10 | Serial number (unsigned 32bit) |
 |   11   |     Current profile number     |
-| 12-31  |              0x00                 |
+| 12-63  |              0x00                 |
 
 ### Goto Profile (0x01)
 
@@ -161,7 +161,7 @@ If command type is 0x01, duckyPad will jump to a particular profile.
 |     0    |    0x04    |
 |     1    |          Sequence number         |
 |     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
-| 3 ... 31 |             0x00             |
+| 3 ... 63 |             0x00             |
 
 ### Previous Profile (0x02)
 
@@ -183,7 +183,7 @@ If command type is 0x02, duckyPad will go to the previous profile.
 |     0    |    0x04    |
 |     1    |          Sequence number         |
 |     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
-| 3 ... 31 |             0x00             |
+| 3 ... 63 |             0x00             |
 
 
 ### Next Profile (0x03)
@@ -206,7 +206,7 @@ If command type is 0x03, duckyPad will go to the next profile.
 |     0    |    0x04    |
 |     1    |          Sequence number         |
 |     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
-| 3 ... 31 |             0x00             |
+| 3 ... 63 |             0x00             |
 
 ### Reload Current Profile (0x04)
 
