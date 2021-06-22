@@ -207,7 +207,7 @@ def open_save_folder():
     elif 'linux' in sys.platform:
         subprocess.Popen(["xdg-open", save_path])
     else:
-        webbrowser.open(backup_path)
+        webbrowser.open(save_path)
 
 dashboard_lf = LabelFrame(root, text="Dashboard", width=620, height=95)
 dashboard_lf.place(x=PADDING, y=60) 
