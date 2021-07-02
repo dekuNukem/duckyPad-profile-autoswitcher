@@ -66,7 +66,7 @@ Details about the protocols are discussed in the next section.
 
 ### Reading from duckyPad
 
-Finally, try [this script](hid_example/ex1_open.py) to send duckyPad a command, AND receive its response.
+Finally, try [this script](hid_example/ex2_read_write.py) to send duckyPad a command, AND receive its response.
 
 You can use it as the starting point of your own program!
 
