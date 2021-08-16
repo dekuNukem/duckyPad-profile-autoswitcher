@@ -511,6 +511,8 @@ def rule_shift_up():
     profile_lstbox.selection_clear(0, len(config_dict['rules_list']))
     profile_lstbox.selection_set(destination)
     update_rule_list_display()
+    save_config()
+
 
 def rule_shift_down():
     # print("def rule_shift_down():")
@@ -525,6 +527,8 @@ def rule_shift_down():
     profile_lstbox.selection_clear(0, len(config_dict['rules_list']))
     profile_lstbox.selection_set(destination)
     update_rule_list_display()
+    save_config()
+
 
 rules_lf = LabelFrame(root, text="Autoswitch rules", width=620, height=410)
 rules_lf.place(x=PADDING, y=160) 
