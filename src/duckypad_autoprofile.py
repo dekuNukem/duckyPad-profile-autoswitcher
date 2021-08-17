@@ -39,7 +39,7 @@ default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
     default_button_color = 'grey'
 
-THIS_VERSION_NUMBER = '0.0.5'
+THIS_VERSION_NUMBER = '0.0.6'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -270,7 +270,7 @@ def t1_worker():
     logging.info("def t1_worker():")
     while(1):
         duckypad_goto_profile(profile_switch_queue)
-        time.sleep(0.2)
+        time.sleep(0.05)
 
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
