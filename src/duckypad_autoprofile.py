@@ -19,6 +19,7 @@ import get_window
 from duckypad import DuckyPad
 
 is_root = os.getuid() == 0
+duckypad_info = {}
 
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
@@ -46,15 +47,24 @@ fw_update_checked = False
 logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
 def quick_duckypad_connection_check() -> None:
-
+    global duckypad_info
     if DuckyPad.get_path():
-        connection_info_str.set("duckyPad found!")
+        connection_info_str.set(
+            "duckyPad found!" +
+            (
+                f" Model: {duckypad_info['model']}  Serial: {duckypad_info['serial']}"
+                if duckypad_info
+                else ""
+            )
+        )
         connection_info_label.config(foreground='navy')
     else:
+        duckypad_info = {}
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
 
 def full_duckypad_connection_check() -> None:
+    global duckypad_info
     # print("def duckypad_connect():")
     logging.info("def duckypad_connect():")
     global fw_update_checked
@@ -97,7 +107,7 @@ def full_duckypad_connection_check() -> None:
         result = None
         with DuckyPad() as duckypad:
             result = duckypad.get_info()
-            # f"Model: {result['model']}  Serial: {result['serial']}  Firmware: {result['fw_ver']}"
+            duckypad_info = result
         if result and fw_update_checked is False:
             print_fw_update_label(result["fw_ver"])
             fw_update_checked = True
