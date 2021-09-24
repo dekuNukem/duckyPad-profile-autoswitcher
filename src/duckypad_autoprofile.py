@@ -120,20 +120,14 @@ def update_windows(textbox):
 def prev_prof_click():
     # print("def prev_prof_click():")
     logging.info("def prev_prof_click():")
-    buffff = [0] * 64
-    buffff[0] = 5
-    buffff[2] = 2
     with DuckyPad() as duckypad:
-        duckypad.write(buffff)
+        duckypad.previous_profile()
 
 def next_prof_click():
     # print("def next_prof_click():")
     logging.info("def next_prof_click():")
-    buffff = [0] * 64
-    buffff[0] = 5
-    buffff[2] = 3
     with DuckyPad() as duckypad:
-        duckypad.write(buffff)
+        duckypad.next_profile()
 
 root = Tk()
 root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER)
@@ -246,12 +240,8 @@ def duckypad_goto_profile(profile_number):
         return
     # print("def duckypad_goto_profile(profile_number):")
     logging.info("def duckypad_goto_profile(profile_number):")
-    buffff = [0] * 64
-    buffff[0] = 5
-    buffff[2] = 1
-    buffff[3] = profile_number
     with DuckyPad() as duckypad:
-        duckypad.write(buffff)
+        duckypad.goto_profile(profile_number)
     last_hid_profile = profile_number
 
 profile_switch_queue = None

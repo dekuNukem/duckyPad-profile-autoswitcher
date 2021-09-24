@@ -84,3 +84,22 @@ class DuckyPad:
             raise OSError("Error reading back result of a write")
 
         return result
+
+    def previous_profile(self) -> None:
+        buffer = [0] * 64
+        buffer[0] = 5
+        buffer[2] = 2
+        self.write(buffer)
+
+    def next_profile(self) -> None:
+        buffer = [0] * 64
+        buffer[0] = 5
+        buffer[2] = 3
+        self.write(buffer)
+    
+    def goto_profile(self, profile_number: int) -> None:
+        buffer = [0] * 64
+        buffer[0] = 5
+        buffer[2] = 1
+        buffer[3] = profile_number
+        self.write(buffer)
