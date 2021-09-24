@@ -11,11 +11,12 @@ DUCKYPAD_VENDOR_ID = 0x0483
 DUCKYPAD_PRODUCT_ID = 0xD11C
 DUCKYPAD_USAGE = 0x3A
 
-class DuckyPad:
 
+class DuckyPad:
     def __init__(self):
         self.duckypad_hid = hid.device()
         self.is_open = False
+        self.has_been_closed = False
 
     def __enter__(self):
         self.open()
@@ -25,10 +26,18 @@ class DuckyPad:
         self.close()
 
     def open(self) -> None:
+        # Don't allow opening more than once
+        # https://github.com/trezor/cython-hidapi/issues/4
+        if self.has_been_closed:
+            raise IOError(
+                "Cannot open the DuckyPad HID device twice. "
+                "Instantiate a new DuckyPad object instead"
+            )
+
         duckypad_path = self.get_path()
 
         if not duckypad_path:
-            raise OSError('duckyPad not connected')
+            raise OSError("duckyPad not connected")
 
         self.duckypad_hid.open_path(duckypad_path)
         self.duckypad_hid.set_nonblocking(1)
@@ -37,6 +46,7 @@ class DuckyPad:
     def close(self) -> None:
         self.duckypad_hid.close()
         self.is_open = False
+        self.has_been_closed = True
 
     @staticmethod
     def get_path() -> Union[str, None]:
@@ -57,7 +67,7 @@ class DuckyPad:
         return {
             "model": self.duckypad_hid.get_product_string(),
             "serial": self.duckypad_hid.get_serial_number_string(),
-            "fw_ver": f"{major}.{minor}.{patch}"
+            "fw_ver": f"{major}.{minor}.{patch}",
         }
 
     def read(self) -> list:
@@ -68,15 +78,17 @@ class DuckyPad:
 
     def write(self, hid_buf_64b: list) -> Union[int, None]:
         if len(hid_buf_64b) != PC_TO_DUCKYPAD_HID_BUF_SIZE:
-            raise ValueError("PC-to-duckyPad buffer wrong size, should be exactly 64 Bytes")
-            
+            raise ValueError(
+                "PC-to-duckyPad buffer wrong size, should be exactly 64 Bytes"
+            )
+
         result = None
 
         try:
             self.duckypad_hid.write(hid_buf_64b)
         except Exception as error:
             raise OSError("duckyPad write error") from error
-        
+
         try:
             result = self.read()
         except Exception as error:
@@ -95,7 +107,7 @@ class DuckyPad:
         buffer[0] = 5
         buffer[2] = 3
         self.write(buffer)
-    
+
     def goto_profile(self, profile_number: int) -> None:
         buffer = [0] * 64
         buffer[0] = 5
