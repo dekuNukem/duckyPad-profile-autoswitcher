@@ -14,7 +14,7 @@ DUCKYPAD_USAGE = 0x3A
 class DuckyPad:
 
     def __init__(self):
-        self.duckypad_hid = None
+        self.duckypad_hid = hid.device()
         self.is_open = False
 
     def __enter__(self):
@@ -30,7 +30,6 @@ class DuckyPad:
         if not duckypad_path:
             raise OSError('duckyPad not connected')
 
-        self.duckypad_hid = hid.device()
         self.duckypad_hid.open_path(duckypad_path)
         self.duckypad_hid.set_nonblocking(1)
         self.is_open = True
@@ -60,7 +59,6 @@ class DuckyPad:
         }
 
     def read(self) -> list:
-        # logging.info("def hid_read():")
         read_start = time.time()
         while time.time() - read_start <= 0.5:
             result = self.duckypad_hid.read(DUCKYPAD_TO_PC_HID_BUF_SIZE)
