@@ -10,7 +10,6 @@ import webbrowser
 import sys
 import threading
 import logging
-import hid_rw
 import get_window
 import check_update
 from hid_rw import DuckyPad
