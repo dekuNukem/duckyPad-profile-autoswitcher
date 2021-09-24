@@ -97,8 +97,9 @@ def full_duckypad_connection_check() -> None:
         result = None
         with DuckyPad() as duckypad:
             result = duckypad.get_info()
+            # f"Model: {result['model']}  Serial: {result['serial']}  Firmware: {result['fw_ver']}"
         if result and fw_update_checked is False:
-            print_fw_update_label(f"Model: {result['model']}  Serial: {result['serial']}  Firmware: {result['fw_ver']}")
+            print_fw_update_label(result["fw_ver"])
             fw_update_checked = True
     except Exception:
         print(traceback.format_exc())

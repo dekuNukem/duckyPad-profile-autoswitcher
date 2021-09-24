@@ -50,8 +50,10 @@ class DuckyPad:
         return None
 
     def get_info(self) -> Dict[str, str]:
-        firmware_version = self.duckypad_hid.write([5] + ([0] * 63))
-        major, minor, patch = firmware_version[3:5]
+        buffer = [0] * 64
+        buffer[0] = 5
+        firmware_version = self.write(buffer)
+        major, minor, patch = firmware_version[3:6]
         return {
             "model": self.duckypad_hid.get_product_string(),
             "serial": self.duckypad_hid.get_serial_number_string(),
@@ -59,15 +61,12 @@ class DuckyPad:
         }
 
     def read(self) -> list:
-        read_start = time.time()
-        while time.time() - read_start <= 0.5:
-            result = self.duckypad_hid.read(DUCKYPAD_TO_PC_HID_BUF_SIZE)
-            if len(result) > 0:
-                return result
-            time.sleep(0.01)
-        return []
+        try:
+            return self.duckypad_hid.read(DUCKYPAD_TO_PC_HID_BUF_SIZE, timeout_ms=500)
+        except Exception:
+            return []
 
-    def write(self, hid_buf_64b: list) -> Union[list, None]:
+    def write(self, hid_buf_64b: list) -> Union[int, None]:
         if len(hid_buf_64b) != PC_TO_DUCKYPAD_HID_BUF_SIZE:
             raise ValueError("PC-to-duckyPad buffer wrong size, should be exactly 64 Bytes")
             
