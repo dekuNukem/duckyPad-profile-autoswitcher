@@ -16,6 +16,7 @@ import hid_rw
 import get_window
 import check_update
 import platform
+from hid_rw import DuckyPad
 from appdirs import *
 import subprocess
 
@@ -52,17 +53,19 @@ def duckypad_connect(show_box=True):
     logging.info("def duckypad_connect():")
     global fw_update_checked
     # connection_info_str.set("Looking for duckyPad...")
-
-    if hid_rw.get_duckypad_path() is None:
+    
+    if DuckyPad.get_path() is None:
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
         logging.info("duckyPad not found")
         return
 
-    init_success = True
+    init_success = False
     try:
-        init_success = hid_rw.duckypad_init()
-    except Exception as e:
+        with DuckyPad():
+            # Duckypad opened ok
+            init_success = True
+    except Exception:
         init_success = False
         logging.error(traceback.format_exc())
 
@@ -89,14 +92,15 @@ def duckypad_connect(show_box=True):
     connection_info_label.config(foreground='navy')
     logging.info("duckyPad found!")
     try:
-        result = hid_rw.duckypad_get_info()
+        with DuckyPad() as duckypad:
+            result = duckypad.get_info()
         connection_info_str.set(f"duckyPad found!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
         logging.info("has extra info")
         if fw_update_checked is False:
             print_fw_update_label(result['fw_ver'])
             fw_update_checked = True
     except Exception as e:
-        # print(traceback.format_exc())
+        print(traceback.format_exc())
         logging.error(traceback.format_exc())
 
 def update_windows(textbox):
@@ -112,21 +116,22 @@ def update_windows(textbox):
     textbox.insert(1.0, windows_str)
     textbox.config(state=DISABLED)
 
-def ducky_write_with_retry(data_buf):
-    logging.info("def ducky_write_with_retry(data_buf):")
-    try:
-        hid_rw.duckypad_hid_write(data_buf)
-        return 0
-    except Exception as e:
-        # print(traceback.format_exc())
-        logging.error("First try: " + str(traceback.format_exc()))
-        try:
-            duckypad_connect(show_box=False)
-            hid_rw.duckypad_hid_write(data_buf)
-            return 0
-        except Exception as e:
-            logging.error("Second try: " + str(traceback.format_exc()))
-    return 1
+# def ducky_write_with_retry(data_buf):
+#     logging.info("def ducky_write_with_retry(data_buf):")
+#     try:
+#         with DuckyPad() as duckypad:
+#             duckypad.write(data_buf)
+#             return 0
+#     except Exception as e:
+#         # print(traceback.format_exc())
+#         logging.error("First try: " + str(traceback.format_exc()))
+#         try:
+#             duckypad_connect(show_box=False)
+#             hid_rw.duckypad_hid_write(data_buf)
+#             return 0
+#         except Exception as e:
+#             logging.error("Second try: " + str(traceback.format_exc()))
+#     return 1
 
 
 def prev_prof_click():
@@ -135,7 +140,9 @@ def prev_prof_click():
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 2
-    ducky_write_with_retry(buffff)
+    with DuckyPad() as duckypad:
+        duckypad.write(buffff)
+    # ducky_write_with_retry(buffff)
 
 def next_prof_click():
     # print("def next_prof_click():")
@@ -143,7 +150,9 @@ def next_prof_click():
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 3
-    ducky_write_with_retry(buffff)
+    with DuckyPad() as duckypad:
+        duckypad.write(buffff)
+    # ducky_write_with_retry(buffff)
 
 root = Tk()
 root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER)
@@ -260,7 +269,9 @@ def duckypad_goto_profile(profile_number):
     buffff[0] = 5
     buffff[2] = 1
     buffff[3] = profile_number
-    ducky_write_with_retry(buffff)
+    with DuckyPad() as duckypad:
+        duckypad.write(buffff)
+    # ducky_write_with_retry(buffff)
     last_hid_profile = profile_number
 
 profile_switch_queue = None
