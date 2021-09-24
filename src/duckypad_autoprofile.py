@@ -633,4 +633,5 @@ quick_check_thread = threading.Thread(target=quick_check_worker, daemon=True)
 quick_check_thread.start()
 
 root.after(250, update_current_app_and_title)
+root.after(1000, full_duckypad_connection_check)
 root.mainloop()
