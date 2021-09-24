@@ -1,7 +1,5 @@
 import time
 from tkinter import *
-from tkinter import filedialog
-from tkinter import simpledialog
 from tkinter import messagebox
 import urllib.request
 import tkinter.scrolledtext as ScrolledText
@@ -15,7 +13,6 @@ import logging
 import hid_rw
 import get_window
 import check_update
-import platform
 from hid_rw import DuckyPad
 from appdirs import *
 import subprocess
