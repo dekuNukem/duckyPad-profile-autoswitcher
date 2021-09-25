@@ -47,6 +47,11 @@ fw_update_checked = False
 logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
 def quick_duckypad_connection_check() -> None:
+    """
+    Performs a quick presence-check for duckyPad, without opening a
+    connection to the device.
+    """
+
     global duckypad_info
     if DuckyPad.get_path():
         connection_info_str.set(
@@ -64,6 +69,11 @@ def quick_duckypad_connection_check() -> None:
         connection_info_label.config(foreground='red')
 
 def full_duckypad_connection_check() -> None:
+    """
+    Performs a full check of connectivity to duckyPad, including opening a
+    HID connection and checking for correct permissions.
+    """
+
     global duckypad_info
     # print("def duckypad_connect():")
     logging.info("def duckypad_connect():")

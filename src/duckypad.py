@@ -1,6 +1,4 @@
-import logging
-import time
-from typing import Dict, Union
+from typing import Dict, List, Optional
 
 import hid
 
@@ -13,6 +11,21 @@ DUCKYPAD_USAGE = 0x3A
 
 
 class DuckyPad:
+    """
+    HID connection wrapper for duckyPad.
+
+    Handles opening and closing of HID connections, and provides
+    a high-level API over PC-to-DuckyPad communication.
+
+    Designed to be used as a context manager that wraps opening
+    and closing connections. E.g.:
+
+    ```
+    with DuckyPad() as duckypad:
+        duckypad.previous_profile()
+    ```
+    """
+
     def __init__(self):
         self.duckypad_hid = hid.device()
         self.is_open = False
@@ -26,6 +39,12 @@ class DuckyPad:
         self.close()
 
     def open(self) -> None:
+        """
+        Opens a HID connection to duckyPad.
+
+        Cannot be called if this instance has been `.close`d before.
+        """
+
         # Don't allow opening more than once
         # https://github.com/trezor/cython-hidapi/issues/4
         if self.has_been_closed:
@@ -44,22 +63,33 @@ class DuckyPad:
         self.is_open = True
 
     def close(self) -> None:
+        """
+        Closes this instance's HID connection to duckyPad.
+        """
+
         self.duckypad_hid.close()
         self.is_open = False
         self.has_been_closed = True
 
     @staticmethod
-    def get_path() -> Union[str, None]:
-        logging.info("Getting duckyPad path:")
+    def get_path() -> Optional[str]:
+        """
+        Returns the HID path of the first duckyPad that can be found, or
+        `None` if duckyPad cannot be found.
+        """
+
         for device_dict in hid.enumerate(
             vendor_id=DUCKYPAD_VENDOR_ID, product_id=DUCKYPAD_PRODUCT_ID
         ):
-            # logging.info(device_dict))
             if device_dict["usage"] == DUCKYPAD_USAGE:
                 return device_dict["path"]
         return None
 
     def get_info(self) -> Dict[str, str]:
+        """
+        Gets metadata about the connected duckyPad.
+        """
+
         buffer = [0] * 64
         buffer[0] = 5
         firmware_version = self.write(buffer)
@@ -71,12 +101,29 @@ class DuckyPad:
         }
 
     def read(self) -> list:
+        """
+        Attempts to read a response from the duckyPad HID connection.
+        """
+
         try:
             return self.duckypad_hid.read(DUCKYPAD_TO_PC_HID_BUF_SIZE, timeout_ms=500)
         except Exception:
             return []
 
-    def write(self, hid_buf_64b: list) -> Union[int, None]:
+    def write(self, hid_buf_64b: List[int]) -> List[int]:
+        """
+        Writes a given list of 64 bytes (as `int`s) to the duckyPad HID
+        device.
+
+        Returns the Duckypad's response as an array of 32 `int`s.
+
+        See the following links for information on the packet format and
+        commands:
+
+        - https://github.com/dekuNukem/duckyPad-profile-autoswitcher/blob/master/HID_details.md#hid-packet-layout
+        - https://github.com/dekuNukem/duckyPad-profile-autoswitcher/blob/master/HID_details.md#hid-commands
+        """
+
         if len(hid_buf_64b) != PC_TO_DUCKYPAD_HID_BUF_SIZE:
             raise ValueError(
                 "PC-to-duckyPad buffer wrong size, should be exactly 64 Bytes"
@@ -97,18 +144,31 @@ class DuckyPad:
         return result
 
     def previous_profile(self) -> None:
+        """
+        Switches duckyPad to the next profile.
+        """
+
         buffer = [0] * 64
         buffer[0] = 5
         buffer[2] = 2
         self.write(buffer)
 
     def next_profile(self) -> None:
+        """
+        Switches duckyPad to the next profile.
+        """
+
         buffer = [0] * 64
         buffer[0] = 5
         buffer[2] = 3
         self.write(buffer)
 
     def goto_profile(self, profile_number: int) -> None:
+        """
+        Set's duckyPad's current profile to the given profile number.
+
+        `profile_number` must be an `int` within the interval (1,32)
+        """
         buffer = [0] * 64
         buffer[0] = 5
         buffer[2] = 1
