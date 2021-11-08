@@ -10,12 +10,17 @@ if p == 'Windows':
 elif p == 'Darwin':
     from AppKit import NSWorkspace
     import Quartz
+elif p == 'Linux':
+    from ewmh import EWMH
+    import psutil
 
 def get_active_window():
     if p == 'Windows':
         return win_get_active_window()
     elif p == 'Darwin':
         return darwin_get_active_window()
+    elif p == 'Linux':
+        return linux_get_active_window()
     raise 'Platform %s not supported' % p
 
 def get_list_of_all_windows():
@@ -23,7 +28,40 @@ def get_list_of_all_windows():
         return win_get_list_of_all_windows()
     elif p == 'Darwin':
         return darwin_get_list_of_all_windows()
+    elif p == 'Linux':
+        return linux_get_list_of_all_windows()
     raise 'Platform %s not supported' % p
+
+def linux_get_list_of_all_windows():
+    ret = set()
+    ewmh = EWMH()
+    for window in ewmh.getClientList():
+        try:
+            win_pid = ewmh.getWmPid(window)
+        except TypeError:
+            win_pid = False
+        if win_pid:
+            app = psutil.Process(win_pid).name()
+        else:
+            app = 'Unknown'
+        ret.add((app, window.get_wm_name()))
+    return ret
+
+
+def linux_get_active_window():
+    ret = set()
+    ewmh = EWMH()
+    active_window = ewmh.getActiveWindow()
+    try:
+        win_pid = ewmh.getWmPid(active_window)
+    except TypeError:
+        win_pid = False
+    if win_pid:
+        active_app = psutil.Process(win_pid).name()
+    else:
+        active_app = 'Unknown'
+    return (active_app, active_window.get_wm_name())
+
 
 def darwin_get_active_window():
     windows = Quartz.CGWindowListCopyWindowInfo(
