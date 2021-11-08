@@ -59,7 +59,7 @@ def linux_get_active_window():
     if win_pid:
         active_app = psutil.Process(win_pid).name()
     else:
-        active_app = 'Unknown'
+        return '', ''
     return (active_app, active_window.get_wm_name())
 
 
