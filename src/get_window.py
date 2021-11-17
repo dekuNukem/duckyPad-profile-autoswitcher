@@ -13,6 +13,7 @@ elif p == 'Darwin':
 elif p == 'Linux':
     from ewmh import EWMH
     import psutil
+    import Xlib
 
 def get_active_window():
     if p == 'Windows':
@@ -56,11 +57,16 @@ def linux_get_active_window():
         win_pid = ewmh.getWmPid(active_window)
     except TypeError:
         win_pid = False
+    except Xlib.error.XResourceError:
+        return '', ''
+    wm_name = active_window.get_wm_name()
+    if isinstance(wm_name, bytes):
+        wm_name = wm_name.decode('utf-8')
     if win_pid:
         active_app = psutil.Process(win_pid).name()
     else:
-        return '', ''
-    return (active_app, active_window.get_wm_name())
+        return '', wm_name
+    return (active_app, wm_name)
 
 
 def darwin_get_active_window():
