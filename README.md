@@ -18,6 +18,8 @@ Extract the `.zip` file and launch the app by clicking `duckypad_autoprofile.exe
 
 ![Alt text](resources/app.png)
 
+Arch Linux users will find this application in [AUR](https://aur.archlinux.org/packages/duckypad-profile-autoswitcher-git/) and may use tool such as `yay` for a quick installation.
+
 ### "Untrusted App" Warnings
 
 When trying to run the app, your system might complain about this software being untrusted. This is because I haven't had the code digitally signed, which costs hundreds of dollars a year.
