@@ -16,9 +16,14 @@ import get_window
 import check_update
 from appdirs import *
 import subprocess
+import argparse
 from pystray import MenuItem as item
 from PIL import Image, ImageDraw
 import pystray
+
+def start_minimized():
+    if args.m:
+        hide_window()
 
 def is_root():
     return os.getuid() == 0
@@ -691,6 +696,17 @@ def t2_worker():
 t2 = threading.Thread(target=t2_worker, daemon=True)
 t2.start()
 
-root.after(250, update_current_app_and_title)
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', action='store_true', help='Start minimized')
+args = parser.parse_args()
+
 root.protocol('WM_DELETE_WINDOW', hide_window)
+
+buffff = [0] * 64
+buffff[0] = 5
+buffff[2] = 0
+ducky_write_with_retry(buffff)
+
+root.after(250, update_current_app_and_title)
+root.after(0, start_minimized)
 root.mainloop()
