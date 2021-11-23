@@ -70,6 +70,10 @@ Finally, try [this script](hid_example/ex2_read_write.py) to send duckyPad a com
 
 You can use it as the starting point of your own program!
 
+### Using from a shell script (Linux only)
+
+You can take a look at [this script](hid_example/ex3_bash.sh) for a way how you can communicate with duckyPad using standard shell utils on Linux. This can be useful to users running systems where python cannot be easily installed.
+
 ## HID Packet Layout
 
 ### PC-to-duckyPad
