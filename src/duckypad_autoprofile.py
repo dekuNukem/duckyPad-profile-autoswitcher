@@ -1,26 +1,25 @@
-import time
-from tkinter import *
-from tkinter import filedialog
-from tkinter import simpledialog
-from tkinter import messagebox
-import urllib.request
-import tkinter.scrolledtext as ScrolledText
-import traceback
 import json
+import logging
 import os
-import webbrowser
+import subprocess
 import sys
 import threading
-import logging
-import hid_rw
-import get_window
-import check_update
-import platform
-from appdirs import *
-import subprocess
+import time
+import tkinter.scrolledtext as ScrolledText
+import traceback
+import urllib.request
+import webbrowser
+from tkinter import *
+from tkinter import messagebox
 
-def is_root():
-    return os.getuid() == 0
+from appdirs import *
+
+import check_update
+import get_window
+from duckypad import DuckyPad
+
+is_root = os.getuid() == 0
+duckypad_info = {}
 
 def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
@@ -47,56 +46,83 @@ fw_update_checked = False
 
 logging.info("duckyPad autoswitcher started! V" + THIS_VERSION_NUMBER)
 
-def duckypad_connect(show_box=True):
+def quick_duckypad_connection_check() -> None:
+    """
+    Performs a quick presence-check for duckyPad, without opening a
+    connection to the device.
+    """
+
+    global duckypad_info
+    if DuckyPad.get_path():
+        connection_info_str.set(
+            "duckyPad found!" +
+            (
+                f" Model: {duckypad_info['model']}  Serial: {duckypad_info['serial']}"
+                if duckypad_info
+                else ""
+            )
+        )
+        connection_info_label.config(foreground='navy')
+    else:
+        duckypad_info = {}
+        connection_info_str.set("duckyPad not found")
+        connection_info_label.config(foreground='red')
+
+def full_duckypad_connection_check() -> None:
+    """
+    Performs a full check of connectivity to duckyPad, including opening a
+    HID connection and checking for correct permissions.
+    """
+
+    global duckypad_info
     # print("def duckypad_connect():")
     logging.info("def duckypad_connect():")
     global fw_update_checked
     # connection_info_str.set("Looking for duckyPad...")
-
-    if hid_rw.get_duckypad_path() is None:
+    
+    if DuckyPad.get_path() is None:
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
         logging.info("duckyPad not found")
+        messagebox.showerror("Error", "Duckypad could not be found")
         return
 
-    init_success = True
+    successfully_initialised = False
     try:
-        init_success = hid_rw.duckypad_init()
-    except Exception as e:
-        init_success = False
+        with DuckyPad():
+            # Duckypad opened ok
+            successfully_initialised = True
+    except Exception:
+        successfully_initialised = False
         logging.error(traceback.format_exc())
 
-    if init_success is False:
-        connection_info_str.set("duckyPad detected but lacks permission")
-        connection_info_label.config(foreground='red')
+    if successfully_initialised:
+        messagebox.showinfo("Info", "Duckypad is successfully connected!")
 
-    if init_success is False and show_box is False:
-        return
-
-    if init_success is False and 'darwin' in sys.platform and is_root() is False:
+    if not successfully_initialised and 'darwin' in sys.platform and not is_root:
         if messagebox.askokcancel("Info", "duckyPad detected, but this app lacks permission to access it.\n\nClick OK to see instructions") is True:
             webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
         return
-    elif init_success is False and 'darwin' in sys.platform and is_root() is True:
+
+    elif not successfully_initialised and 'darwin' in sys.platform and is_root:
         if messagebox.askokcancel("Info", "duckyPad detected, however, due to macOS restrictions, you'll need to enable some privacy settings.\n\nClick OK to learn how.") is True:
             webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
         return
-    elif init_success is False:
+        
+    elif not successfully_initialised:
         messagebox.showinfo("Info", "Failed to connect to duckyPad")
         return
 
-    connection_info_str.set("duckyPad connected!")
-    connection_info_label.config(foreground='navy')
-    logging.info("duckyPad found!")
     try:
-        result = hid_rw.duckypad_get_info()
-        connection_info_str.set(f"duckyPad found!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
-        logging.info("has extra info")
-        if fw_update_checked is False:
-            print_fw_update_label(result['fw_ver'])
+        result = None
+        with DuckyPad() as duckypad:
+            result = duckypad.get_info()
+            duckypad_info = result
+        if result and fw_update_checked is False:
+            print_fw_update_label(result["fw_ver"])
             fw_update_checked = True
-    except Exception as e:
-        # print(traceback.format_exc())
+    except Exception:
+        print(traceback.format_exc())
         logging.error(traceback.format_exc())
 
 def update_windows(textbox):
@@ -112,38 +138,17 @@ def update_windows(textbox):
     textbox.insert(1.0, windows_str)
     textbox.config(state=DISABLED)
 
-def ducky_write_with_retry(data_buf):
-    logging.info("def ducky_write_with_retry(data_buf):")
-    try:
-        hid_rw.duckypad_hid_write(data_buf)
-        return 0
-    except Exception as e:
-        # print(traceback.format_exc())
-        logging.error("First try: " + str(traceback.format_exc()))
-        try:
-            duckypad_connect(show_box=False)
-            hid_rw.duckypad_hid_write(data_buf)
-            return 0
-        except Exception as e:
-            logging.error("Second try: " + str(traceback.format_exc()))
-    return 1
-
-
 def prev_prof_click():
     # print("def prev_prof_click():")
     logging.info("def prev_prof_click():")
-    buffff = [0] * 64
-    buffff[0] = 5
-    buffff[2] = 2
-    ducky_write_with_retry(buffff)
+    with DuckyPad() as duckypad:
+        duckypad.previous_profile()
 
 def next_prof_click():
     # print("def next_prof_click():")
     logging.info("def next_prof_click():")
-    buffff = [0] * 64
-    buffff[0] = 5
-    buffff[2] = 3
-    ducky_write_with_retry(buffff)
+    with DuckyPad() as duckypad:
+        duckypad.next_profile()
 
 root = Tk()
 root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER)
@@ -157,11 +162,11 @@ connection_info_str.set("<--- Press Connect button")
 connection_info_lf = LabelFrame(root, text="Connection", width=620, height=60)
 connection_info_lf.place(x=PADDING, y=0) 
 connection_info_label = Label(master=connection_info_lf, textvariable=connection_info_str)
-connection_info_label.place(x=110, y=5)
+connection_info_label.place(x=175, y=5)
 connection_info_label.config(foreground='orange red')
 
-connection_button = Button(connection_info_lf, text="Connect", command=duckypad_connect)
-connection_button.config(width=11, height=1)
+connection_button = Button(connection_info_lf, text="Diagnose Connection", command=full_duckypad_connection_check)
+connection_button.config(width=13, height=1)
 connection_button.place(x=PADDING, y=5)
 
 # --------------------
@@ -256,11 +261,8 @@ def duckypad_goto_profile(profile_number):
         return
     # print("def duckypad_goto_profile(profile_number):")
     logging.info("def duckypad_goto_profile(profile_number):")
-    buffff = [0] * 64
-    buffff[0] = 5
-    buffff[2] = 1
-    buffff[3] = profile_number
-    ducky_write_with_retry(buffff)
+    with DuckyPad() as duckypad:
+        duckypad.goto_profile(profile_number)
     last_hid_profile = profile_number
 
 profile_switch_queue = None
@@ -271,6 +273,11 @@ def t1_worker():
     while(1):
         duckypad_goto_profile(profile_switch_queue)
         time.sleep(0.05)
+
+def quick_check_worker() -> None:
+    while 1:
+        quick_duckypad_connection_check()
+        time.sleep(1)
 
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
@@ -633,5 +640,9 @@ dp_fw_update_label.place(x=5, y=30)
 t1 = threading.Thread(target=t1_worker, daemon=True)
 t1.start()
 
+quick_check_thread = threading.Thread(target=quick_check_worker, daemon=True)
+quick_check_thread.start()
+
 root.after(250, update_current_app_and_title)
+root.after(1000, full_duckypad_connection_check)
 root.mainloop()
