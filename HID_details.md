@@ -142,7 +142,8 @@ If command type is 0x00, duckyPad will return its device information.
 |    5   |     Firmware version Patch     |
 | 7 - 10 | Serial number (unsigned 32bit) |
 |   11   |     Current profile number     |
-| 12-63  |              0x00                 |
+|   12   |     Sleep status. 0=awake, 1=sleeping   |
+| 13-63  |              0x00                 |
 
 ### Goto Profile (0x01)
 
@@ -289,7 +290,6 @@ Only 60 bytes of data are returned per each call thus next chunk must be request
 ### Resume operation (0x0c)
 
 If command type is 0x0c, duckyPad will - depending on the previous operation - either get another chunk of data (read file) or retrieve another line of file/dir listing (list files).
-
 
 * PC to duckyPad:
 
@@ -453,7 +453,7 @@ If command type is 0x13, duckyPad will create a directory with name specified in
 
 ### Software reset (0x14)
 
-If command type is 0x13, duckyPad will reset.
+If command type is 0x14, duckyPad will perform a software reset.
 
 * PC to duckyPad:
 
@@ -462,6 +462,28 @@ If command type is 0x13, duckyPad will reset.
 |     0    |        0x05        |
 |     1    | Sequence number |
 |     2    |        0x14        |
+| 3 ... 63 | 0x00 |
+
+* duckyPad to PC:
+
+|   Byte#  |            Description           |
+|:--------:|:--------------------------------:|
+|     0    |    0x04    |
+|     1    |          Sequence number         |
+|     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
+| 3 ... 63 | 0x00 |
+
+### Sleep (0x15)
+
+If command type is 0x15, duckyPad will go to sleep.
+
+* PC to duckyPad:
+
+|   Byte#  |   Description   |
+|:--------:|:---------------:|
+|     0    |        0x05        |
+|     1    | Sequence number |
+|     2    |        0x15        |
 | 3 ... 63 | 0x00 |
 
 * duckyPad to PC:
