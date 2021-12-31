@@ -15,7 +15,6 @@ import logging
 import hid_rw
 import get_window
 import check_update
-import platform
 from appdirs import *
 import subprocess
 
@@ -80,6 +79,10 @@ def duckypad_connect(show_box=True):
     elif init_success is False and 'darwin' in sys.platform and is_root() is True:
         if messagebox.askokcancel("Info", "duckyPad detected, however, due to macOS restrictions, you'll need to enable some privacy settings.\n\nClick OK to learn how.") is True:
             webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
+        return
+    elif init_success is False and 'linux' in sys.platform:
+        if messagebox.askokcancel("Info", "duckyPad detected, but you need to change some settings to use it.\n\nClick OK to learn how.") is True:
+            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/app_posix.md')
         return
     elif init_success is False:
         messagebox.showinfo("Info", "Failed to connect to duckyPad")
@@ -270,7 +273,7 @@ def t1_worker():
     logging.info("def t1_worker():")
     while(1):
         duckypad_goto_profile(profile_switch_queue)
-        time.sleep(0.05)
+        time.sleep(0.033)
 
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")

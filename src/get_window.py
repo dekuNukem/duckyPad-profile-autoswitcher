@@ -51,7 +51,6 @@ def linux_get_list_of_all_windows():
         ret.add((app, wm_name))
     return ret
 
-
 def linux_get_active_window():
     ret = set()
     ewmh = EWMH()
@@ -74,7 +73,6 @@ def linux_get_active_window():
     else:
         return '', wm_name
     return (active_app, wm_name)
-
 
 def darwin_get_active_window():
     windows = Quartz.CGWindowListCopyWindowInfo(
@@ -121,3 +119,5 @@ def win_get_active_window():
     if active_window is None:
         return '', ''
     return (win_get_app_name(active_window._hWnd), active_window.title)
+
+# print(get_list_of_all_windows())
