@@ -32,13 +32,15 @@ def duckypad_get_info():
 
 def get_duckypad_path():
     logging.info("def get_duckypad_path():")
+    path_dict = {}
     for device_dict in hid.enumerate():
-        logging.info(str(device_dict))
-        if device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] == 0xd11c and device_dict['usage'] == 58:
-            return device_dict['path']
-        elif device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] == 0xd11c:
-            return device_dict['path']
-    return None
+        if device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] == 0xd11c:
+            path_dict[device_dict['usage']] = device_dict['path']
+    if len(path_dict) == 0:
+        return None
+    if 58 in path_dict:
+        return path_dict[58]
+    return list(path_dict.values())[0]
 
 def hid_read():
     logging.info("def hid_read():")
