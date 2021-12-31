@@ -18,6 +18,14 @@ Extract the `.zip` file and launch the app by clicking `duckypad_autoprofile.exe
 
 ![Alt text](resources/app.png)
 
+### Linux Users
+
+Linux users might need to [apply a udev rule](https://github.com/dekuNukem/duckyPad/blob/master/app_posix.md#udev-rule), then launch the program with:
+
+```
+xhost +; sudo python3 duckypad_autoprofile.py 
+```
+
 Arch Linux users will find this application in [AUR](https://aur.archlinux.org/packages/duckypad-profile-autoswitcher-git/) and may use tool such as `yay` for a quick installation.
 
 ### "Untrusted App" Warnings
@@ -33,7 +41,6 @@ For Windows 10, click `More info` and then `Run anyway`.
 For macOS, **`RIGHT CLICK`** on the app and select `Open`. You might have to do it twice.
 
 ![Alt text](resources/macos_warning.png)
-
 
 ### Using the App
 
