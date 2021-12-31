@@ -25,6 +25,8 @@ def ensure_dir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
+# xhost +;sudo python3 duckypad_autoprofile.py 
+
 appname = 'duckypad_autoswitcher'
 appauthor = 'dekuNukem'
 save_path = user_data_dir(appname, appauthor, roaming=True)
@@ -38,7 +40,7 @@ default_button_color = 'SystemButtonFace'
 if 'linux' in sys.platform:
     default_button_color = 'grey'
 
-THIS_VERSION_NUMBER = '0.0.6'
+THIS_VERSION_NUMBER = '0.0.7'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -50,7 +52,6 @@ def duckypad_connect(show_box=True):
     # print("def duckypad_connect():")
     logging.info("def duckypad_connect():")
     global fw_update_checked
-    # connection_info_str.set("Looking for duckyPad...")
 
     if hid_rw.get_duckypad_path() is None:
         connection_info_str.set("duckyPad not found")
@@ -101,6 +102,7 @@ def duckypad_connect(show_box=True):
     except Exception as e:
         # print(traceback.format_exc())
         logging.error(traceback.format_exc())
+    hid_rw.duckypad_close()
 
 def update_windows(textbox):
     # print("def update_windows(textbox):")
@@ -115,17 +117,21 @@ def update_windows(textbox):
     textbox.insert(1.0, windows_str)
     textbox.config(state=DISABLED)
 
-def ducky_write_with_retry(data_buf):
-    logging.info("def ducky_write_with_retry(data_buf):")
+def duckypad_write_with_retry(data_buf):
+    logging.info("def duckypad_write_with_retry(data_buf):")
     try:
+        hid_rw.duckypad_init()
         hid_rw.duckypad_hid_write(data_buf)
+        hid_rw.duckypad_close()
         return 0
     except Exception as e:
         # print(traceback.format_exc())
         logging.error("First try: " + str(traceback.format_exc()))
         try:
             duckypad_connect(show_box=False)
+            hid_rw.duckypad_init()
             hid_rw.duckypad_hid_write(data_buf)
+            hid_rw.duckypad_close()
             return 0
         except Exception as e:
             logging.error("Second try: " + str(traceback.format_exc()))
@@ -138,7 +144,7 @@ def prev_prof_click():
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 2
-    ducky_write_with_retry(buffff)
+    duckypad_write_with_retry(buffff)
 
 def next_prof_click():
     # print("def next_prof_click():")
@@ -146,7 +152,7 @@ def next_prof_click():
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 3
-    ducky_write_with_retry(buffff)
+    duckypad_write_with_retry(buffff)
 
 root = Tk()
 root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER)
@@ -263,7 +269,7 @@ def duckypad_goto_profile(profile_number):
     buffff[0] = 5
     buffff[2] = 1
     buffff[3] = profile_number
-    ducky_write_with_retry(buffff)
+    duckypad_write_with_retry(buffff)
     last_hid_profile = profile_number
 
 profile_switch_queue = None

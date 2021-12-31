@@ -6,26 +6,21 @@ PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
 DUCKYPAD_TO_PC_HID_BUF_SIZE = 32
 
 h = hid.device()
-is_hid_open = False
 
 def duckypad_init():
-    global h
-    global is_hid_open
     logging.info("def duckypad_init():")
-    h.close()
     duckypad_path = get_duckypad_path()
     if duckypad_path is None:
         return False
     h.open_path(duckypad_path)
     h.set_nonblocking(1)
-    is_hid_open = True
     return True
+
+def duckypad_close():
+    h.close()
 
 def duckypad_get_info():
     logging.info("def duckypad_get_info():")
-    global is_hid_open
-    if is_hid_open is False:
-        raise OSError('duckyPad not connected')
     dpinfo = {}
     dpinfo['model'] = h.get_product_string()
     dpinfo['serial'] = h.get_serial_number_string()
@@ -34,9 +29,6 @@ def duckypad_get_info():
     result = duckypad_hid_write(buffff)
     dpinfo['fw_ver'] = f'{result[3]}.{result[4]}.{result[5]}'
     return dpinfo
-
-def duckypad_hid_close():
-    h.close()
 
 def get_duckypad_path():
     logging.info("def get_duckypad_path():")
@@ -60,9 +52,6 @@ def hid_read():
 
 def duckypad_hid_write(hid_buf_64b):
     logging.info("def duckypad_hid_write(hid_buf_64b):")
-    global is_hid_open
-    if is_hid_open is False:
-        raise OSError('duckyPad not connected')
     if len(hid_buf_64b) != PC_TO_DUCKYPAD_HID_BUF_SIZE:
         raise ValueError('PC-to-duckyPad buffer wrong size, should be exactly 64 Bytes')
     result = None
@@ -71,7 +60,6 @@ def duckypad_hid_write(hid_buf_64b):
         result = hid_read()
     except Exception as e:
         h.close()
-        is_hid_open = False
         raise OSError('duckyPad write error')
     return result
 
