@@ -26,7 +26,9 @@ Linux users might need to [apply a udev rule](https://github.com/dekuNukem/ducky
 xhost +; sudo python3 duckypad_autoprofile.py 
 ```
 
-Arch Linux users will find this application in [AUR](https://aur.archlinux.org/packages/duckypad-profile-autoswitcher-git/) and may use tool such as `yay` for a quick installation.
+Use `pip3` to install any missing packages.
+
+Arch Linux users can find this application in [AUR](https://aur.archlinux.org/packages/duckypad-profile-autoswitcher-git/) and may use tool such as `yay` for a quick installation.
 
 ### "Untrusted App" Warnings
 
