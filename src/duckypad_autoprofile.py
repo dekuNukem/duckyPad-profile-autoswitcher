@@ -705,7 +705,7 @@ root.protocol('WM_DELETE_WINDOW', hide_window)
 buffff = [0] * 64
 buffff[0] = 5
 buffff[2] = 0
-ducky_write_with_retry(buffff)
+duckypad_write_with_retry(buffff)
 
 root.after(250, update_current_app_and_title)
 root.after(0, start_minimized)
