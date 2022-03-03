@@ -676,7 +676,10 @@ def t2_worker():
         # this thread is idle unless the app is iconified
         if not iconized:
             continue
-        app_name, window_title = get_window.get_active_window()
+        try:
+            app_name, window_title = get_window.get_active_window()
+        except:
+            continue
         if config_dict['autoswitch_enabled'] is False:
             continue
         for index, item in enumerate(config_dict['rules_list']):
