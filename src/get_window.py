@@ -65,11 +65,22 @@ def linux_get_active_window():
         return '', ''
     wm_name = active_window.get_wm_name()
     if not wm_name:
-        wm_name = 'class:{}'.format(active_window.get_wm_class()[0])
+        try:
+            wm_class = active_window.get_wm_class()
+        except:
+            return '', ''
+        if wm_class:
+            wm_name = 'class:{}'.format(wm_class[0])
+        else:
+            return '', ''
     if isinstance(wm_name, bytes):
         wm_name = wm_name.decode('utf-8')
     if win_pid:
-        active_app = psutil.Process(win_pid).name()
+        # process may already be gone
+        try:
+            active_app = psutil.Process(win_pid).name()
+        except:
+            return '', wm_name
     else:
         return '', wm_name
     return (active_app, wm_name)
