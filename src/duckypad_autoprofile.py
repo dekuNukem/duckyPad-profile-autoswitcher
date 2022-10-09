@@ -180,7 +180,7 @@ discord_link_url = "https://raw.githubusercontent.com/dekuNukem/duckyPad/master/
 def open_user_manual():
     # print("def open_user_manual():")
     logging.info("def open_user_manual():")
-    webbrowser.open('https://github.com/dekuNukem/duckyPad-profile-autoswitcher#user-manual')
+    webbrowser.open('https://github.com/dekuNukem/duckyPad-profile-autoswitcher/blob/master/README.md#user-manual')
 
 def open_discord():
     # print("def open_discord():")
