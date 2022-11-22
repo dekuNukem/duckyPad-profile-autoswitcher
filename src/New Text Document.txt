@@ -1,0 +1,15 @@
+### Print Text (0x06)
+
+To be implemented...
+
+### Print Bitmap (0x07)
+
+To be implemented...
+
+### Clear Screen (0x08)
+
+To be implemented...
+
+### Update Screen (0x09)
+
+To be implemented...

@@ -213,29 +213,48 @@ If command type is 0x03, duckyPad will go to the next profile.
 |     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
 | 3 ... 63 |             0x00             |
 
-### Reload Current Profile (0x04)
+### Set RGB Colour: Single (0x04)
 
-To be implemented...
+**TO BE IMPLEMENTED**
 
-### Change RGB LED Colour (0x05)
+Set RGB color of a single LED.
 
-To be implemented...
+* PC to duckyPad:
 
-### Print Text (0x06)
+|   Byte#  |   Description   |
+|:--------:|:---------------:|
+|     0    |        0x05        |
+|     1    | Sequence number |
+|     2    |        0x05        |
+|     3    |LED index, 1 to 15  |
+|     4    |Red  |
+|     5    |Green  |
+|     6    |Blue  |
+| 7 ... 63 |        0x00        |
 
-To be implemented...
+### Set RGB Colour: Bulk (0x05)
 
-### Print Bitmap (0x07)
+**TO BE IMPLEMENTED**
 
-To be implemented...
+Set RGB color of ALL LEDs, ideal for animations.
 
-### Clear Screen (0x08)
+|   Byte#  |   Description   |
+|:--------:|:---------------:|
+|     0    |        0x05        |
+|     1    | Sequence number |
+|     2    |        0x05        |
+|     3    |LED 1 Red  |
+|     4    |LED 1 Green  |
+|     5    |LED 1 Blue  |
+|     6    |LED 2 Red  |
+|     7    |LED 2 Green  |
+|     8    |LED 2 Blue  |
+|     ....    |....  |
+|     45    |LED 15 Red  |
+|     46    |LED 15 Green  |
+|     47    |LED 15 Blue  |
+| 48 ... 63 |        0x00        |
 
-To be implemented...
-
-### Update Screen (0x09)
-
-To be implemented...
 
 ### List files (0x0a)
 
