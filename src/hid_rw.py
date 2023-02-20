@@ -1,14 +1,12 @@
 import hid
 import time
-import logging
 
 PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
-DUCKYPAD_TO_PC_HID_BUF_SIZE = 32
+DUCKYPAD_TO_PC_HID_BUF_SIZE = 64
 
 h = hid.device()
 
 def duckypad_init():
-    logging.info("def duckypad_init():")
     duckypad_path = get_duckypad_path()
     if duckypad_path is None:
         return False
@@ -20,7 +18,6 @@ def duckypad_close():
     h.close()
 
 def duckypad_get_info():
-    logging.info("def duckypad_get_info():")
     dpinfo = {}
     dpinfo['model'] = h.get_product_string()
     dpinfo['serial'] = h.get_serial_number_string()
@@ -28,10 +25,10 @@ def duckypad_get_info():
     buffff[0] = 5
     result = duckypad_hid_write(buffff)
     dpinfo['fw_ver'] = f'{result[3]}.{result[4]}.{result[5]}'
+    dpinfo['is_busy'] = result[2]
     return dpinfo
 
 def get_duckypad_path():
-    logging.info("def get_duckypad_path():")
     path_dict = {}
     for device_dict in hid.enumerate():
         if device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] == 0xd11c:
@@ -43,7 +40,6 @@ def get_duckypad_path():
     return list(path_dict.values())[0]
 
 def hid_read():
-    logging.info("def hid_read():")
     read_start = time.time()
     while time.time() - read_start <= 0.5:
         result = h.read(DUCKYPAD_TO_PC_HID_BUF_SIZE)
@@ -53,7 +49,6 @@ def hid_read():
     return []
 
 def duckypad_hid_write(hid_buf_64b):
-    logging.info("def duckypad_hid_write(hid_buf_64b):")
     if len(hid_buf_64b) != PC_TO_DUCKYPAD_HID_BUF_SIZE:
         raise ValueError('PC-to-duckyPad buffer wrong size, should be exactly 64 Bytes')
     result = None
