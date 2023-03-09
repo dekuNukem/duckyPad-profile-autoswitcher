@@ -14,6 +14,7 @@ elif p == 'Linux':
     from ewmh import EWMH
     import psutil
     import Xlib
+    NET_WM_NAME = Xlib.display.Display().intern_atom('_NET_WM_NAME')
 
 def get_active_window():
     if p == 'Windows':
@@ -47,7 +48,11 @@ def linux_get_list_of_all_windows():
             app = 'Unknown'
         wm_name = window.get_wm_name()
         if not wm_name:
+            wm_name = window.get_full_property(NET_WM_NAME, 0).value
+        if not wm_name:
             wm_name = 'class:{}'.format(window.get_wm_class()[0])
+        if isinstance(wm_name, bytes):
+            wm_name = wm_name.decode('utf-8')
         ret.add((app, wm_name))
     return ret
 
@@ -64,6 +69,8 @@ def linux_get_active_window():
     except Xlib.error.XResourceError:
         return '', ''
     wm_name = active_window.get_wm_name()
+    if not wm_name:
+        wm_name = active_window.get_full_property(NET_WM_NAME, 0).value
     if not wm_name:
         wm_name = 'class:{}'.format(active_window.get_wm_class()[0])
     if isinstance(wm_name, bytes):
