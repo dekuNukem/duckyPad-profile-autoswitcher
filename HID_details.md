@@ -136,7 +136,7 @@ If command type is 0x00, duckyPad will return its device information.
 |:------:|:------------------------------:|
 |    0   |              0x04              |
 |    1   |         Sequence number        |
-|    2   |                0x00               |
+|    2   |0 = SUCCESS, 1 = ERROR, 2 = BUSY|
 |    3   |     Firmware version Major     |
 |    4   |     Firmware version Minor     |
 |    5   |     Firmware version Patch     |
