@@ -39,10 +39,14 @@ if 'linux' in sys.platform:
 
 """
 0.0.8 2023 02 20
+faster refresh rate 33ms
 added HID busy check
+
+0.1.0 2023 10 12
+added queue to prevent dropping requests when duckypad is busy
 """
 
-THIS_VERSION_NUMBER = '0.0.8'
+THIS_VERSION_NUMBER = '0.1.0'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -89,7 +93,8 @@ def duckypad_connect(show_box=True):
     try:
         result = hid_rw.duckypad_get_info()
         if result['is_busy']:
-            messagebox.showerror("Error", "duckyPad is busy!\n\nMake sure no script is running.")
+            if show_box:
+                messagebox.showerror("Error", "duckyPad is busy!\n\nMake sure no script is running.")
             hid_rw.duckypad_close()
             return
         connection_info_label.config(foreground='navy')
@@ -113,23 +118,32 @@ def update_windows(textbox):
     textbox.insert(1.0, windows_str)
     textbox.config(state=DISABLED)
 
+DP_WRITE_OK = 0
+DP_WRITE_FAIL = 1
+DP_WRITE_BUSY = 2
+
 def duckypad_write_with_retry(data_buf):
     try:
         hid_rw.duckypad_init()
+        if hid_rw.duckypad_get_info()['is_busy']:
+            return DP_WRITE_BUSY
         hid_rw.duckypad_hid_write(data_buf)
         hid_rw.duckypad_close()
-        return 0
+        return DP_WRITE_OK
     except Exception as e:
-        # print(traceback.format_exc())
+        # print("first exception:", traceback.format_exc())
         try:
             duckypad_connect(show_box=False)
             hid_rw.duckypad_init()
+            if hid_rw.duckypad_get_info()['is_busy']:
+                return DP_WRITE_BUSY
             hid_rw.duckypad_hid_write(data_buf)
             hid_rw.duckypad_close()
-            return 0
+            return DP_WRITE_OK
         except Exception as e:
             pass
-    return 1
+            # print("second exception:", traceback.format_exc())
+    return DP_WRITE_FAIL
 
 def prev_prof_click():
     # print("def prev_prof_click():")
@@ -239,30 +253,44 @@ current_app_name_var.set("Current app name:")
 current_window_title_var = StringVar()
 current_window_title_var.set("Current Window Title:")
 
-
 def duckypad_goto_profile(profile_number):
     if profile_number is None:
-        return
-    if not 1 <= profile_number <= 31:
-        return
+        return DP_WRITE_OK
+    if not (1 <= profile_number <= 31):
+        return DP_WRITE_OK
     # print("def duckypad_goto_profile(profile_number):")
     buffff = [0] * 64
     buffff[0] = 5
     buffff[2] = 1
     buffff[3] = profile_number
-    duckypad_write_with_retry(buffff)
+    return duckypad_write_with_retry(buffff)
 
 profile_switch_queue = []
+last_switch = None
 
 def t1_worker():
+    global last_switch
     # print("def t1_worker():")
     while(1):
-        # duckypad_goto_profile(profile_switch_queue)
-        print(profile_switch_queue)
-        time.sleep(1)
-
+        time.sleep(0.033)
+        if len(profile_switch_queue) == 0:
+            continue
+        queue_head = profile_switch_queue[0]
+        result = duckypad_goto_profile(queue_head)
+        if result == DP_WRITE_BUSY:
+            print("DUCKYPAD IS BUSY! Retrying later")
+        elif result == DP_WRITE_OK:
+            print("switch success")
+            profile_switch_queue.pop(0)
+            last_switch = queue_head
+            print(profile_switch_queue)
+            time.sleep(0.2)
+        
 def switch_queue_add(profile_number):
+    global last_switch
     if profile_number is None:
+        return
+    if profile_number == last_switch:
         return
     if len(profile_switch_queue) > 0 and profile_switch_queue[-1] == profile_number:
         return
@@ -495,7 +523,6 @@ def rule_shift_up():
     update_rule_list_display()
     save_config()
 
-
 def rule_shift_down():
     # print("def rule_shift_down():")
     selection = profile_lstbox.curselection()
@@ -509,7 +536,6 @@ def rule_shift_down():
     profile_lstbox.selection_set(destination)
     update_rule_list_display()
     save_config()
-
 
 rules_lf = LabelFrame(root, text="Autoswitch rules", width=620, height=410)
 rules_lf.place(x=PADDING, y=160) 

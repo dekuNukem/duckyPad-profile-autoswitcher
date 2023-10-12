@@ -10,7 +10,13 @@ def duckypad_init():
     duckypad_path = get_duckypad_path()
     if duckypad_path is None:
         return False
-    h.open_path(duckypad_path)
+    try:
+        h.open_path(duckypad_path)
+    except Exception as e:
+        if "already open" in str(e).lower():
+            return True
+        else:
+            raise RuntimeError("open_path failed")
     h.set_nonblocking(1)
     return True
 
