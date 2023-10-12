@@ -48,7 +48,6 @@ MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
 fw_update_checked = False
 
-
 def duckypad_connect(show_box=True):
     # print("def duckypad_connect():")
     global fw_update_checked
@@ -90,7 +89,7 @@ def duckypad_connect(show_box=True):
     try:
         result = hid_rw.duckypad_get_info()
         if result['is_busy']:
-            messagebox.showerror("Error", "duckyPad is busy!")
+            messagebox.showerror("Error", "duckyPad is busy!\n\nMake sure no script is running.")
             hid_rw.duckypad_close()
             return
         connection_info_label.config(foreground='navy')
@@ -240,15 +239,11 @@ current_app_name_var.set("Current app name:")
 current_window_title_var = StringVar()
 current_window_title_var.set("Current Window Title:")
 
-last_hid_profile = None
 
 def duckypad_goto_profile(profile_number):
-    global last_hid_profile
     if profile_number is None:
         return
     if not 1 <= profile_number <= 31:
-        return
-    if profile_number == last_hid_profile:
         return
     # print("def duckypad_goto_profile(profile_number):")
     buffff = [0] * 64
@@ -256,19 +251,25 @@ def duckypad_goto_profile(profile_number):
     buffff[2] = 1
     buffff[3] = profile_number
     duckypad_write_with_retry(buffff)
-    last_hid_profile = profile_number
 
-profile_switch_queue = None
+profile_switch_queue = []
 
 def t1_worker():
     # print("def t1_worker():")
     while(1):
-        duckypad_goto_profile(profile_switch_queue)
-        time.sleep(0.033)
+        # duckypad_goto_profile(profile_switch_queue)
+        print(profile_switch_queue)
+        time.sleep(1)
+
+def switch_queue_add(profile_number):
+    if profile_number is None:
+        return
+    if len(profile_switch_queue) > 0 and profile_switch_queue[-1] == profile_number:
+        return
+    profile_switch_queue.append(profile_number)
 
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
-    global profile_switch_queue
 
     root.after(250, update_current_app_and_title)
 
@@ -296,7 +297,7 @@ def update_current_app_and_title():
         if len(item['window_title']) > 0:
             window_title_condition = item['window_title'].lower() in window_title.lower()
         if app_name_condition and window_title_condition:
-            profile_switch_queue = item['switch_to']
+            switch_queue_add(item['switch_to'])
             highlight_index = index
             break
 
