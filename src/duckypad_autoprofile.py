@@ -16,6 +16,14 @@ import get_window
 import check_update
 from appdirs import *
 import subprocess
+import argparse
+from pystray import MenuItem as item
+from PIL import Image, ImageDraw
+import pystray
+
+def start_minimized():
+    if args.m:
+        hide_window()
 
 def is_root():
     return os.getuid() == 0
@@ -26,6 +34,28 @@ def ensure_dir(dir_path):
 
 # xhost +;sudo python3 duckypad_autoprofile.py 
 
+def hide_window():
+    global iconized
+    iconized = True
+    root.withdraw()
+    menu = (item('Show', show_window), item('Quit', quit_window))
+    image = Image.new('RGB', (16, 16), 0)
+    dc = ImageDraw.Draw(image)
+    dc.text(text='dP', xy=(0, 3))
+    icon = pystray.Icon("name", icon=image, title="dP profile switcher", menu=menu)
+    icon.run()
+
+def quit_window(icon, item):
+    icon.stop()
+    root.destroy()
+
+def show_window(icon, item):
+    icon.stop()
+    global iconized
+    iconized = False
+    root.after(0, root.deiconify())
+
+iconized = False
 appname = 'duckypad_autoswitcher'
 appauthor = 'dekuNukem'
 save_path = user_data_dir(appname, appauthor, roaming=True)
@@ -295,6 +325,7 @@ def switch_queue_add(profile_number):
     if len(profile_switch_queue) > 0 and profile_switch_queue[-1] == profile_number:
         return
     profile_switch_queue.append(profile_number)
+
 
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
@@ -637,5 +668,48 @@ duckypad_connect()
 t1 = threading.Thread(target=t1_worker, daemon=True)
 t1.start()
 
+def t2_worker():
+    global profile_switch_queue
+    global iconized
+    while(1):
+        time.sleep(0.1)
+        # this thread is idle unless the app is iconified
+        if not iconized:
+            continue
+        try:
+            app_name, window_title = get_window.get_active_window()
+        except:
+            continue
+        if config_dict['autoswitch_enabled'] is False:
+            continue
+        for index, item in enumerate(config_dict['rules_list']):
+            if item['enabled'] is False:
+                continue
+            app_name_condition = True
+            if len(item['app_name']) > 0:
+                app_name_condition = item['app_name'].lower() in app_name.lower()
+            window_title_condition = True
+            if len(item['window_title']) > 0:
+                window_title_condition = item['window_title'].lower() in window_title.lower()
+            if app_name_condition and window_title_condition:
+                profile_switch_queue = item['switch_to']
+                highlight_index = index
+                continue
+
+t2 = threading.Thread(target=t2_worker, daemon=True)
+t2.start()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', action='store_true', help='Start minimized')
+args = parser.parse_args()
+
+root.protocol('WM_DELETE_WINDOW', hide_window)
+
+buffff = [0] * 64
+buffff[0] = 5
+buffff[2] = 0
+duckypad_write_with_retry(buffff)
+
 root.after(250, update_current_app_and_title)
+root.after(0, start_minimized)
 root.mainloop()
