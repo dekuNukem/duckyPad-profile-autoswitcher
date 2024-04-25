@@ -1,2 +1,4 @@
 hidapi
+ctwin32
+appdirs
 pyobjc
