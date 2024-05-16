@@ -16,7 +16,13 @@ elif p == 'Linux':
     from ewmh import EWMH
     import psutil
     import Xlib
+    import subprocess # Used to interact with kdotool in bash
+    import os #
     NET_WM_NAME = Xlib.display.Display().intern_atom('_NET_WM_NAME')
+    if os.environ.get('DESKTOP_SESSION'): #Check wether plasma kde is running.
+        is_plasmawayland = True
+    else:
+        is_plasmawayland = False
 
 def get_active_window():
     if p == 'Windows':
@@ -37,40 +43,73 @@ def get_list_of_all_windows():
     raise 'Platform %s not supported' % p
 
 def linux_get_list_of_all_windows():
+    '''
+    Added new code for this function, which uses the bash package kdotool for checking all windows and sending them to ret
+    whenever the display server is on wayland. As far as I can tell, it grabs xwayland windows as well. This method should only work for KDE,
+    and I tested it on Manjaro Linux running plasma 6
+    '''
     ret = set()
     ewmh = EWMH()
-    for window in ewmh.getClientList():
-        try:
-            win_pid = ewmh.getWmPid(window)
-        except TypeError:
-            win_pid = False
-        if win_pid:
-            app = psutil.Process(win_pid).name()
-        else:
-            app = 'Unknown'
-        wm_name = window.get_wm_name()
-        if not wm_name:
-            wm_name = window.get_full_property(NET_WM_NAME, 0).value
-        if not wm_name:
-            wm_name = 'class:{}'.format(window.get_wm_class()[0])
-        if isinstance(wm_name, bytes):
-            wm_name = wm_name.decode('utf-8')
-        ret.add((app, wm_name))
+    if is_plasmawayland: #This part of the function uses kdotool to check for all active windows and sends them to ret.
+        for window in list(filter(None, subprocess.check_output(['kdotool', 'search']).decode().split('\n'))):
+            try:
+                win_pid = int(subprocess.check_output(['kdotool', 'getwindowpid', window]).decode())
+            except TypeError:
+                win_pid = False
+            if win_pid:
+                app = psutil.Process(win_pid).name()
+            else:
+                app = 'Unknown'
+            wm_name = subprocess.check_output(['kdotool','getwindowname',window]).decode().strip()
+            if not wm_name:
+                wm_name = 'Unknown'
+            ret.add((app, wm_name))
+    else: # Current function for getting window list, runs only of not on wayland.
+        for window in ewmh.getClientList():
+            try:
+                win_pid = ewmh.getWmPid(window)
+            except TypeError:
+                win_pid = False
+            if win_pid:
+                app = psutil.Process(win_pid).name()
+            else:
+                app = 'Unknown'
+            wm_name = window.get_wm_name()
+            if not wm_name:
+                wm_name = window.get_full_property(NET_WM_NAME, 0).value
+            if not wm_name:
+                wm_name = 'class:{}'.format(window.get_wm_class()[0])
+            if isinstance(wm_name, bytes):
+                wm_name = wm_name.decode('utf-8')
+            ret.add((app, wm_name))
     return ret
 
 def linux_get_active_window():
+    '''
+    Added a new conditional portion of the function, which uses kdotool to get the active window data when on wayland
+    '''
     ret = set()
     ewmh = EWMH()
-    active_window = ewmh.getActiveWindow()
-    if not active_window:
-        return '', ''
-    try:
-        win_pid = ewmh.getWmPid(active_window)
-    except TypeError:
-        win_pid = False
-    except Xlib.error.XResourceError:
-        return '', ''
-    wm_name = active_window.get_wm_name()
+    if is_plasmawayland:
+        active_window = subprocess.check_output(['kdotool', 'getactivewindow']).decode().strip()
+        if not active_window:
+            return '', ''
+        try:
+            win_pid = int(subprocess.check_output(['kdotool','getwindowpid',active_window]).decode())
+        except TypeError:
+            win_pid = False
+        wm_name = subprocess.check_output(['kdotool', 'getwindowname', active_window])
+    else:
+        active_window = ewmh.getActiveWindow()
+        if not active_window:
+            return '', ''
+        try:
+            win_pid = ewmh.getWmPid(active_window)
+        except TypeError:
+            win_pid = False
+        except Xlib.error.XResourceError:
+            return '', ''
+        wm_name = active_window.get_wm_name()
     if not wm_name:
         wm_name = active_window.get_full_property(NET_WM_NAME, 0).value
     if not wm_name:
