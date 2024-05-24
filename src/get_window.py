@@ -78,7 +78,11 @@ def linux_get_active_window():
     if isinstance(wm_name, bytes):
         wm_name = wm_name.decode('utf-8')
     if win_pid:
-        active_app = psutil.Process(win_pid).name()
+        # process may already be gone
+        try:
+            active_app = psutil.Process(win_pid).name()
+        except:
+            return '', wm_name
     else:
         return '', wm_name
     return (active_app, wm_name)
