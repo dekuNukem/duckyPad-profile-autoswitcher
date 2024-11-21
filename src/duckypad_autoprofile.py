@@ -679,7 +679,7 @@ dp_fw_update_label.place(x=5, y=30)
 
 # ------------------
 
-messagebox.showinfo("Info", "Now supporting switching profile by name!\n\nCase sensitive, duckyPad Pro only (for now).\n\n")
+# messagebox.showinfo("Info", "Now supporting switching profile by name!\n\nCase sensitive, duckyPad Pro only (for now).\n\n")
 duckypad_connect()
 
 t1 = threading.Thread(target=t1_worker, daemon=True)
