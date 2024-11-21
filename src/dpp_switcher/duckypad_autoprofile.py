@@ -85,15 +85,15 @@ def duckypad_connect(show_box=True):
 
     if init_success is False and 'darwin' in sys.platform and is_root() is False:
         if messagebox.askokcancel("Info", "duckyPad detected, but this app lacks permission to access it.\n\nClick OK to see instructions") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
+            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
         return
     elif init_success is False and 'darwin' in sys.platform and is_root() is True:
         if messagebox.askokcancel("Info", "duckyPad detected, however, due to macOS restrictions, you'll need to enable some privacy settings.\n\nClick OK to learn how.") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
+            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
         return
     elif init_success is False and 'linux' in sys.platform:
         if messagebox.askokcancel("Info", "duckyPad detected, but you need to change some settings to use it.\n\nClick OK to learn how.") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/app_posix.md')
+            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
         return
     elif init_success is False:
         messagebox.showinfo("Info", "Failed to connect to duckyPad")
@@ -445,17 +445,17 @@ def create_rule_window(existing_rule=None):
     app_name_label = Label(master=rule_window, text="IF app name contains:")
     app_name_label.place(x=20, y=25)
     app_name_entrybox = Entry(rule_window)
-    app_name_entrybox.place(x=230, y=25, width=200)
+    app_name_entrybox.place(x=250, y=25, width=200)
     
     window_name_label = Label(master=rule_window, text="AND window title contains:")
     window_name_label.place(x=20, y=50)
     window_name_entrybox = Entry(rule_window)
-    window_name_entrybox.place(x=230, y=50, width=200)
+    window_name_entrybox.place(x=250, y=50, width=200)
 
-    switch_to_label = Label(master=rule_window, text="THEN switch to profile #")
+    switch_to_label = Label(master=rule_window, text="THEN switch to profile (case sensitive):")
     switch_to_label.place(x=20, y=75)
     switch_to_entrybox = Entry(rule_window)
-    switch_to_entrybox.place(x=230, y=75, width=200)
+    switch_to_entrybox.place(x=250, y=75, width=200)
 
     if existing_rule is not None:
         app_name_entrybox.insert(0, existing_rule["app_name"])
@@ -470,11 +470,11 @@ def create_rule_window(existing_rule=None):
     rule_done_button.place(x=40, y=80)
 
     match_all_label = Label(master=rule_window, text="(leave blank to match all)")
-    match_all_label.place(x=450, y=25)
+    match_all_label.place(x=470, y=25)
     match_all_label2 = Label(master=rule_window, text="(leave blank to match all)")
-    match_all_label2.place(x=450, y=50)
+    match_all_label2.place(x=470, y=50)
     match_all_label3 = Label(master=rule_window, text="(leave blank for no action)")
-    match_all_label3.place(x=450, y=75)
+    match_all_label3.place(x=470, y=75)
 
     current_window_lf = LabelFrame(rule_window, text="Active window", width=620, height=80)
     current_window_lf.place(x=PADDING, y=110+30)
@@ -602,7 +602,7 @@ refresh_autoswitch()
 
 def fw_update_click(what):
     # print("def fw_update_click(what):")
-    webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/firmware_updates_and_version_history.md')
+    webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/firmware_updates_and_version_history.md')
 
 def app_update_click(event):
     # print("def app_update_click(event):")
