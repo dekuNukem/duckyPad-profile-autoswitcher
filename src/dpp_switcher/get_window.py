@@ -4,8 +4,10 @@ import platform
 p = platform.system()
 
 if p == 'Windows':
-    import wmi
-    import win32process
+    import ctypes
+    import ctwin32
+    import ctwin32.ntdll
+    import ctwin32.user
     import pygetwindow as gw
 elif p == 'Darwin':
     from AppKit import NSWorkspace
@@ -103,12 +105,18 @@ def darwin_get_list_of_all_windows():
 
 def win_get_app_name(hwnd):
     """Get application name given hwnd."""
-    c = wmi.WMI()
     try:
-        _, pid = win32process.GetWindowThreadProcessId(hwnd)
-        for p in c.query('SELECT Name FROM Win32_Process WHERE ProcessId = %s' % str(pid)):
-            exe = p.Name.rsplit('.', 1)[0]
-            break
+        _, pid = ctwin32.user.GetWindowThreadProcessId(hwnd)
+        spii = ctwin32.ntdll.SYSTEM_PROCESS_ID_INFORMATION()
+        buffer = ctypes.create_unicode_buffer(0x1000)
+        spii.ProcessId = pid
+        spii.ImageName.MaximumLength = len(buffer)
+        spii.ImageName.Buffer = ctypes.addressof(buffer)
+        ctwin32.ntdll.NtQuerySystemInformation(ctwin32.SystemProcessIdInformation, ctypes.byref(spii), ctypes.sizeof(spii), None)
+        name = str(spii.ImageName)
+        dot = name.rfind('.')
+        slash = name.rfind('\\')
+        exe = name[slash+1:dot]
     except:
         return 'unknown'
     else:
