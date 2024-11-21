@@ -47,11 +47,8 @@ output_folder_path = os.path.join('.', "dist")
 original_name = os.path.join(output_folder_path, "duckypad_autoprofile")
 new_name = os.path.join(output_folder_path, "duckypad_autoprofile_" + THIS_VERSION + "_win10_x64")
 
-# print(original_name)
-# print(new_name)
-
-# os.rename(original_name, new_name)
-# zip_file_name = "duckypad_autoprofile_" + THIS_VERSION + "_win10_x64"
+os.rename(original_name, new_name)
+zip_file_name = "duckypad_autoprofile_" + THIS_VERSION + "_win10_x64"
+print(zip_file_name)
 # shutil.make_archive(zip_file_name, 'zip', new_name)
-
 # clean()
