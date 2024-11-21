@@ -1,0 +1,4 @@
+hidapi
+ctwin32
+platformdirs
+pyobjc

@@ -14,7 +14,7 @@ import threading
 import hid_rw
 import get_window
 import check_update
-from appdirs import *
+from platformdirs import *
 import subprocess
 
 def is_root():
