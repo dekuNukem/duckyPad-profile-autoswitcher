@@ -132,6 +132,7 @@ DP_WRITE_FAIL = 1
 DP_WRITE_BUSY = 2
 
 def duckypad_write_with_retry(data_buf):
+    print(data_buf)
     try:
         hid_rw.duckypad_init()
         if hid_rw.duckypad_get_info()['is_busy']:
@@ -268,7 +269,7 @@ def duckypad_goto_profile(profile_target_name):
     # print("def duckypad_goto_profile(profile_target_name):")
     buffff = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
     buffff[0] = 5
-    buffff[2] = 1
+    buffff[2] = 23
     for index, item in enumerate(profile_target_name):
         buffff[index+3] = ord(item)
     return duckypad_write_with_retry(buffff)
