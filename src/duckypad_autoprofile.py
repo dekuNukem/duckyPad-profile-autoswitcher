@@ -58,9 +58,8 @@ changed timing to make it less laggy, still feels roughly the same tho
 0.4.0
 Nov 21 2024
 Now detects both duckyPad and duckyPad Pro
-
-
-
+supports switching profiles by name or number
+UI tweaks
 """
 
 THIS_VERSION_NUMBER = '0.4.0'
@@ -68,10 +67,17 @@ MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
 fw_update_checked = False
+is_dpp = False
+
+print("\n\n--------------------------")
+print("\n\nWelcome to duckyPad Autoswitcher!\n")
+print("This window prints debug information.")
+print("Used for troubleshooting if it crashes.\n\n")
 
 def duckypad_connect(show_box=True):
     # print("def duckypad_connect():")
     global fw_update_checked
+    global is_dpp
 
     if hid_rw.get_duckypad_path() is None:
         connection_info_str.set("duckyPad not found")
@@ -116,6 +122,10 @@ def duckypad_connect(show_box=True):
             return
         connection_info_label.config(foreground='navy')
         connection_info_str.set(f"Connected!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
+        if "duckypad pro" in result['model'].lower():
+            is_dpp = True
+        else:
+            is_dpp = False
         if fw_update_checked is False:
             print_fw_update_label(result['fw_ver'])
             fw_update_checked = True
@@ -625,7 +635,10 @@ refresh_autoswitch()
 
 def fw_update_click(what):
     # print("def fw_update_click(what):")
-    webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/firmware_updates_and_version_history.md')
+    if is_dpp:
+        webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/firmware_updates_and_version_history.md')
+    else:
+        webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/doc/firmware_updates_and_version_history.md')
 
 def app_update_click(event):
     # print("def app_update_click(event):")
@@ -633,7 +646,7 @@ def app_update_click(event):
 
 def print_fw_update_label(this_version):
     # print("def print_fw_update_label(this_version):")
-    fw_result = check_update.get_firmware_update_status(this_version)
+    fw_result = check_update.get_firmware_update_status(this_version, is_dpp)
     if fw_result == 0:
         dp_fw_update_label.config(text='duckyPad firmware (' + str(this_version) +'): Up to date', fg='black', bg=default_button_color)
         dp_fw_update_label.unbind("<Button-1>")
