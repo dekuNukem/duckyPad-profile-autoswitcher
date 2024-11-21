@@ -1,12 +1,14 @@
 # duckyPad HID Command Protocols
 
-[Get duckyPad](https://www.tindie.com/products/21984/) | [Official Discord](https://discord.gg/4sJCBx5) | [Project Main Page](https://github.com/dekuNukem/duckyPad)
+[Get duckyPad](https://duckypad.com) | [Official Discord](https://discord.gg/4sJCBx5)
+
+------------
 
 This article describes duckyPad HID command protocols, and how it can be used to control duckyPad from your PC.
 
 ## HID Basics
 
-After firmware 0.18.0, duckyPad will enumerate as 4 HID devices:
+duckyPad enumerates as 4 HID devices:
 
 * Keyboard
 
@@ -24,15 +26,17 @@ duckyPad has the following HID properties:
 
 **Vendor ID**: 0x0483 (1155)
 
-**Product ID**: 0xd11c (53532)
+**Product ID**
+
+* **duckyPad (2020)**: 0xd11c (53532) 
+
+* **duckyPad Pro (2024)**: 0xd11d (53533) 
 
 The `Counted Buffer` device has the usage ID of 0x3a (58).
 
 ------
 
-The HID command buffer from **PC to duckyPad** is **64 Bytes**, meaning you must send a fixed 64B packet to duckyPad.
-
-The HID command buffer from **duckyPad to PC** is also **64 Bytes**, meaning duckyPad will reply with a fixed 64B response.
+The HID command buffer is **64 Bytes**, meaning you must send a fixed 64B packet to duckyPad, and will receive a fixed 64B response.
 
 ## HID Examples
 
@@ -58,203 +62,261 @@ usage_page : 1
 vendor_id : 1155
 ```
 
-### Writing to duckyPad
+### Write to duckyPad
 
 Try [this script](hid_example/ex1_open.py) to open duckyPad HID device and write a 64-byte packet asking it to change to the next profile.
 
-Details about the protocols are discussed in the next section.
-
-### Reading from duckyPad
+### Read from duckyPad
 
 Finally, try [this script](hid_example/ex2_read_write.py) to send duckyPad a command, AND receive its response.
 
 You can use it as the starting point of your own program!
 
-### Using from a shell script (Linux only)
+### Using Bash (Linux only)
 
-You can take a look at [this script](hid_example/ex3_bash.sh) for a way how you can communicate with duckyPad using standard shell utils on Linux. This can be useful to users running systems where python cannot be easily installed.
+[This script](hid_example/ex3_bash.sh) talks to duckyPad with shell utils without Python.
 
-## HID Packet Layout
+## HID Packet Structure
 
 ### PC-to-duckyPad
 
-As mentioned before, duckyPad expects a **fixed 64-byte** packet from PC:
-
+duckyPad expects a **fixed 64-byte** packet from PC:
 
 |   Byte#  |         Description        |
 |:--------:|:--------------------------:|
 |     0    | HID Usage ID (always 0x05) |
-|     1    |       Sequence number      |
-|     2    |        Command type        |
-| 3 ... 63 |          Payloads          |
-
-* Byte 0 is always 0x05
-
-* Byte 1 is sequence number, can be anything from 0 to 255.
-
-* Byte 2 is command type, [introduced below](#hid-commands).
-
-* The rest of the buffer is **payload**, set to 0 for unused portion.
+|     1    |       Reserved      |
+|     2    |        Command Type      |
+| 3 ... 63 |          Payload          |
 
 ### duckyPad-to-PC
 
-Once received a packet from PC, duckyPad will reply with a **fixed 64-byte** response:
+duckyPad will reply with a **fixed 64-byte** response:
 
 |   Byte#  |            Description           |
 |:--------:|:--------------------------------:|
 |     0    |    HID Usage ID (always 0x04)    |
-|     1    |          Sequence number         |
-|     2    | Status. 0 = SUCCESS, 1 = ERROR. 2 = BUSY |
-| 3 ... 63 |             Payloads             |
+|     1    |          Reserved         |
+|     2    | Status<br>0 = SUCCESS<br>1 = ERROR<br>2 = BUSY||
+| 3 ... 63 |             Payload             |
 
-* Byte 0 is always 0x04
-
-* Byte 1 is the **same** sequence number from PC's command. Can be used to track missed packets.
-
-* Byte 2 is status, can be SUCCESS, ERROR, or BUSY. The latter is returned if duckyPad is executing a script, or in a menu.
-
-* The rest of the buffer is **payload**, will be 0 if unused.
+* `BUSY` is returned if duckyPad is executing a script, or in a menu.
 
 ## HID Commands
 
-### Info (0x00)
+### Query Info (0x00)
 
-If command type is 0x00, duckyPad will return its device information.
-
-* PC to duckyPad:
+💬 PC to duckyPad:
 
 |   Byte#  |   Description   |
 |:--------:|:---------------:|
 |     0    |        0x05        |
-|     1    | Sequence number |
+|     1    | Reserved |
 |     2    |        0x00        |
 | 3 ... 63 |        0x00        |
 
-* duckyPad to PC:
+💬 duckyPad to PC:
 
 |  Byte# |           Description          |
 |:------:|:------------------------------:|
 |    0   |              0x04              |
-|    1   |         Sequence number        |
-|    2   |0 = SUCCESS, 1 = ERROR, 2 = BUSY|
+|    1   |         Reserved        |
+|    2   |0 = SUCCESS|
 |    3   |     Firmware version Major     |
 |    4   |     Firmware version Minor     |
 |    5   |     Firmware version Patch     |
+|    6   |     Hardware revision<br>20 = duckyPad<br>24 = duckyPad Pro     |
 | 7 - 10 | Serial number (unsigned 32bit) |
 |   11   |     Current profile number     |
-|   12   |     Sleep status. 0=awake, 1=sleeping   |
+|   12   |     is_sleeping  |
 | 13-63  |              0x00                 |
 
-### Goto Profile (0x01)
+-----------
 
-If command type is 0x01, duckyPad will jump to a particular profile.
+### Goto Profile by **NUMBER** (0x01)
 
-* PC to duckyPad:
+💬 PC to duckyPad:
 
 |   Byte#  |   Description   |
 |:--------:|:---------------:|
 |     0    |        0x05        |
-|     1    | Sequence number |
+|     1    | Reserved |
 |     2    |        0x01        |
-|     3    |   Profile number to jump to        |
+|     3    |   Profile number<br>(**1-indexed**)    |
 | 4 ... 63 |        0x00        |
 
-* duckyPad to PC:
+💬 duckyPad to PC:
 
 |   Byte#  |            Description           |
 |:--------:|:--------------------------------:|
 |     0    |    0x04    |
-|     1    |          Sequence number         |
-|     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
+|     1    |          Reserved         |
+|     2    | Status, 0 = SUCCESS |
 | 3 ... 63 |             0x00             |
+
+-----------
+
+### Goto Profile by **NAME** (0x17 / 23)
+
+💬 PC to duckyPad:
+
+|   Byte#  |   Description   |
+|:--------:|:---------------:|
+|     0    |        0x05        |
+|     1    | Reserved |
+|     2    |        0x17        |
+|     3 ... 63    |   Profile Name String<br>**Case Sensitive**<br>Zero terminated  |
+
+💬 duckyPad to PC:
+
+|   Byte#  |            Description           |
+|:--------:|:--------------------------------:|
+|     0    |    0x04    |
+|     1    |          Reserved         |
+|     2    | Status, 0 = SUCCESS |
+| 3 ... 63 |             0x00             |
+
+-----------
 
 ### Previous Profile (0x02)
 
-If command type is 0x02, duckyPad will go to the previous profile.
-
-* PC to duckyPad:
+💬 PC to duckyPad:
 
 |   Byte#  |   Description   |
 |:--------:|:---------------:|
 |     0    |        0x05        |
-|     1    | Sequence number |
+|     1    | Reserved |
 |     2    |        0x02        |
 | 3 ... 63 |        0x00        |
 
-* duckyPad to PC:
+💬 duckyPad to PC:
 
 |   Byte#  |            Description           |
 |:--------:|:--------------------------------:|
 |     0    |    0x04    |
-|     1    |          Sequence number         |
-|     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
+|     1    |          Reserved         |
+|     2    | Status, 0 = SUCCESS |
 | 3 ... 63 |             0x00             |
 
+
+-----------
 
 ### Next Profile (0x03)
 
-If command type is 0x03, duckyPad will go to the next profile.
-
-* PC to duckyPad:
+💬 PC to duckyPad:
 
 |   Byte#  |   Description   |
 |:--------:|:---------------:|
 |     0    |        0x05        |
-|     1    | Sequence number |
+|     1    | Reserved |
 |     2    |        0x03        |
 | 3 ... 63 |        0x00        |
 
-* duckyPad to PC:
+💬 duckyPad to PC:
 
 |   Byte#  |            Description           |
 |:--------:|:--------------------------------:|
 |     0    |    0x04    |
-|     1    |          Sequence number         |
-|     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
+|     1    |          Reserved         |
+|     2    | Status, 0 = SUCCESS |
 | 3 ... 63 |             0x00             |
+
+-----------
 
 ### Set RGB Colour: Single (0x04)
 
-**TO BE IMPLEMENTED**
-
-Set RGB color of a single LED.
+Change color of a single LED.
 
 * PC to duckyPad:
 
 |   Byte#  |   Description   |
 |:--------:|:---------------:|
 |     0    |        0x05        |
-|     1    | Sequence number |
-|     2    |        0x05        |
-|     3    |LED index, 1 to 15  |
+|     1    | Reserved |
+|     2    |        0x04        |
+|     3    |LED index, 0 to 19  |
 |     4    |Red  |
 |     5    |Green  |
 |     6    |Blue  |
 | 7 ... 63 |        0x00        |
 
-### Set RGB Colour: Bulk (0x05)
+-----------
 
-**TO BE IMPLEMENTED**
 
-Set RGB color of ALL LEDs, ideal for animations.
+
+### Software reset (0x14 / 20)
+
+Perform a software reset.
+
+💬 PC to duckyPad:
 
 |   Byte#  |   Description   |
 |:--------:|:---------------:|
 |     0    |        0x05        |
-|     1    | Sequence number |
-|     2    |        0x05        |
-|     3    |LED 1 Red  |
-|     4    |LED 1 Green  |
-|     5    |LED 1 Blue  |
-|     6    |LED 2 Red  |
-|     7    |LED 2 Green  |
-|     8    |LED 2 Blue  |
-|     ....    |....  |
-|     45    |LED 15 Red  |
-|     46    |LED 15 Green  |
-|     47    |LED 15 Blue  |
-| 48 ... 63 |        0x00        |
+|     1    | Reserved |
+|     2    |        0x14        |
+|     3    |        Reboot options<br>0 = Normal<br>1 = Reboot into USB MSC mode  |
+| 3 ... 63 | 0x00 |
 
+💬 duckyPad to PC:
+
+Nothing, because it's rebooting!
+
+**Wait at least 5 seconds** before trying to talk to it again.
+
+-----------
+
+### Sleep (0x15 / 21)
+
+Make duckyPad go to sleep.
+
+Screen and RGB LEDs are turned off.
+
+💬 PC to duckyPad:
+
+|   Byte#  |   Description   |
+|:--------:|:---------------:|
+|     0    |        0x05        |
+|     1    | Reserved |
+|     2    |        0x15        |
+| 3 ... 63 | 0x00 |
+
+💬 duckyPad to PC:
+
+|   Byte#  |            Description           |
+|:--------:|:--------------------------------:|
+|     0    |    0x04    |
+|     1    |          Reserved         |
+|     2    | Status, 0 = SUCCESS |
+| 3 ... 63 | 0x00 |
+
+-----------
+
+### Wake up (0x16 / 22)
+
+Wake up from sleep
+
+💬 PC to duckyPad:
+
+|   Byte#  |   Description   |
+|:--------:|:---------------:|
+|     0    |        0x05        |
+|     1    | Reserved |
+|     2    |        0x16        |
+| 3 ... 63 | 0x00 |
+
+💬 duckyPad to PC:
+
+|   Byte#  |            Description           |
+|:--------:|:--------------------------------:|
+|     0    |    0x04    |
+|     1    |          Reserved         |
+|     2    | Status, 0 = SUCCESS |
+| 3 ... 63 | 0x00 |
+
+----------
+
+### ⚠️⚠️⚠️ Commands Below are duckyPad (2020) ONLY ⚠️⚠️⚠️
 
 ### List files (0x0a)
 
@@ -460,50 +522,6 @@ If command type is 0x13, duckyPad will create a directory with name specified in
 |     1    | Sequence number |
 |     2    |        0x13        |
 | 3 ... 63 | relative path to a directory (ASCII, path components are separated using '/') |
-
-* duckyPad to PC:
-
-|   Byte#  |            Description           |
-|:--------:|:--------------------------------:|
-|     0    |    0x04    |
-|     1    |          Sequence number         |
-|     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
-| 3 ... 63 | 0x00 |
-
-### Software reset (0x14)
-
-If command type is 0x14, duckyPad will perform a software reset.
-
-* PC to duckyPad:
-
-|   Byte#  |   Description   |
-|:--------:|:---------------:|
-|     0    |        0x05        |
-|     1    | Sequence number |
-|     2    |        0x14        |
-| 3 ... 63 | 0x00 |
-
-* duckyPad to PC:
-
-|   Byte#  |            Description           |
-|:--------:|:--------------------------------:|
-|     0    |    0x04    |
-|     1    |          Sequence number         |
-|     2    | 0 = SUCCESS, 1 = ERROR, 2 = BUSY |
-| 3 ... 63 | 0x00 |
-
-### Sleep (0x15)
-
-If command type is 0x15, duckyPad will go to sleep.
-
-* PC to duckyPad:
-
-|   Byte#  |   Description   |
-|:--------:|:---------------:|
-|     0    |        0x05        |
-|     1    | Sequence number |
-|     2    |        0x15        |
-| 3 ... 63 | 0x00 |
 
 * duckyPad to PC:
 

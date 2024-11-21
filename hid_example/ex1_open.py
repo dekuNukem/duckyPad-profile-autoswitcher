@@ -13,7 +13,6 @@ PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
 
 h = hid.device()
 
-
 duckypad_pid = 0xd11c
 duckypad_pro_pid = 0xd11d
 
