@@ -27,6 +27,7 @@ def ensure_dir(dir_path):
 # xhost +;sudo python3 duckypad_autoprofile.py 
 
 appname = 'duckypad_autoswitcher_dpp'
+appname = 'duckypad_autoswitcher'
 appauthor = 'dekuNukem'
 save_path = user_data_dir(appname, appauthor, roaming=True)
 
@@ -53,9 +54,16 @@ seems a bit laggy tho
 quick edit to work on duckypad pro
 switch profile by name instead of number
 changed timing to make it less laggy, still feels roughly the same tho
+
+0.4.0
+Nov 21 2024
+Now detects both duckyPad and duckyPad Pro
+
+
+
 """
 
-THIS_VERSION_NUMBER = '0.3.0'
+THIS_VERSION_NUMBER = '0.4.0'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -265,14 +273,28 @@ current_window_title_var.set("Current Window Title:")
 
 PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
 
-def duckypad_goto_profile(profile_target_name):
-    # print("def duckypad_goto_profile(profile_target_name):")
+def duckypad_goto_profile_by_name(profile_name):
+    profile_name = profile_name[:32]
     buffff = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
     buffff[0] = 5
     buffff[2] = 23
-    for index, item in enumerate(profile_target_name):
+    for index, item in enumerate(profile_name):
         buffff[index+3] = ord(item)
     return duckypad_write_with_retry(buffff)
+
+def duckypad_goto_profile_by_index(profile_index):
+    buffff = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
+    buffff[0] = 5
+    buffff[2] = 1
+    buffff[3] = profile_index
+    return duckypad_write_with_retry(buffff)
+
+def duckypad_goto_profile(profile_target):
+    try:
+        return duckypad_goto_profile_by_index(int(profile_target))
+    except Exception as e:
+        print('Not a number:', e)
+    return duckypad_goto_profile_by_name(profile_target)
 
 profile_switch_queue = []
 last_switch = None
@@ -333,7 +355,7 @@ def update_current_app_and_title():
         if len(item['window_title']) > 0:
             window_title_condition = item['window_title'].lower() in window_title.lower()
         if app_name_condition and window_title_condition:
-            switch_queue_add(item['switch_to'])
+            switch_queue_add(str(item['switch_to']))
             highlight_index = index
             break
 
