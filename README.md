@@ -6,57 +6,39 @@ This app allows your duckyPad to **switch profiles automatically** based on **cu
 
 ![Alt text](resources/switch.gif)
 
-⚠️ This software is fairly new, and there might be some bugs or rough edges. [Let me know](#questions-or-comments) if you run into any problems!
-
 ## User Manual
 
-### Download and Launch the App
+### Windows
 
-[Head over here](https://github.com/dekuNukem/duckyPad-profile-autoswitcher/releases) and download the latest release.
+[Download the latest release here](https://github.com/dekuNukem/duckyPad-profile-autoswitcher/releases/latest)
 
 Extract the `.zip` file and launch the app by clicking `duckypad_autoprofile.exe`:
 
 ![Alt text](resources/app.png)
 
-### Linux Users
+Windows might complain about unsigned app.
 
-Linux users might need to [apply a udev rule](https://github.com/dekuNukem/duckyPad/blob/master/app_posix.md#udev-rule), then launch the program with:
+Click `More info` and then `Run anyway`.
 
-```
-xhost +; sudo python3 duckypad_autoprofile.py 
-```
-
-Use `pip3` to install any missing packages.
-
-Arch Linux users can find this application in [AUR](https://aur.archlinux.org/packages/duckypad-profile-autoswitcher-git/) and may use tool such as `yay` for a quick installation.
-
-### "Untrusted App" Warnings
-
-When trying to run the app, your system might complain about this software being untrusted. This is because I haven't had the code digitally signed, which costs hundreds of dollars a year.
-
-Feel free to [review the code](https://github.com/dekuNukem/duckyPad-profile-autoswitcher/tree/master/src), you can also run `duckypad_autoprofile.py` directly with Python3. 
-
-For Windows 10, click `More info` and then `Run anyway`.
+Feel free to [review the files](../pc_software), or run the source code directly with Python.
 
 ![Alt text](resources/defender.png)
 
-For macOS, **`RIGHT CLICK`** on the app and select `Open`. You might have to do it twice.
+### Mac
 
-![Alt text](resources/macos_warning.png)
+![Alt text](resources/underc.gif)
+
+### Linux
+
+![Alt text](resources/underc.gif)
 
 ### Using the App
 
-Once plugged in, your duckyPad should show up in the `Connection` section.
-
-If not, make sure you duckyPad [is running the latest firmware](https://github.com/dekuNukem/duckyPad/blob/master/firmware_updates_and_version_history.md) (0.18.0 and above).
+Your duckyPad should show up in the `Connection` section.
 
 ![Alt text](resources/empty.png)
 
-You can use the buttons in `dashboard` section to open user manual, [discord](https://discord.gg/4sJCBx5), make backups, switch profiles, and start/pause profile autoswitching. 
-
-![Alt text](resources/dash.png)
-
-Profile autoswitching is based on a list of *rules*.
+Profile-Autoswitching is based on a list of *rules*.
 
 To create a new rule, click `New rule...` button:
 
@@ -64,15 +46,28 @@ To create a new rule, click `New rule...` button:
 
 A new window should pop up:
 
-![Alt text](resources/rulewin.png)
+![Alt text](resources/new.png)
 
-Each rule contains **application name**, **window title**, and the **profile number** to switch to.
+Each rule contains **Application name**, **Window Title**, and the **Profile** to switch to.
 
-Type in the keywords you want to match in the text box. They are **case-insensitive**, leave blank to match all.
+**`App name`** and **`Window Title`**:
 
-Current active window and a list of all windows are provided for reference.
+* Type in the keyword you want to match
+
+* NOT case sensitive
+
+**`Jump-to Profile`**:
+
+* Can be Profile Number
+	* 1-indexed
+* Or Profile Name 
+	* **duckyPad Pro ONLY** (for now)
+	* Full Name
+	* Case Sensitive
 
 Click `Save` when done.
+
+Current active window and a list of all windows are provided for reference.
 
 -------
 
@@ -84,7 +79,7 @@ Back to the main window, duckyPad should now automatically switch profile once a
 
 * Currently matched rule will turn green. 
 
-* Select a rule and click `Move up` and `Move down` to rearrange its priority.
+* Select a rule and click `Move up` and `Move down` to rearrange priority.
 
 * Click `On/Off` button to enable/disable a rule.
 
@@ -92,7 +87,7 @@ That's pretty much it! Just leave the app running and duckyPad will do its thing
 
 ## Launch Autoswitcher on Windows Startup
 
-If you want to launch autoswitcher with Windows, The easiest way is to place a shortcut in the Startup folder:
+The easiest way is to place a shortcut in the Startup folder:
 
 * Select the autoswitcher app and press `Ctrl+C`.
 
