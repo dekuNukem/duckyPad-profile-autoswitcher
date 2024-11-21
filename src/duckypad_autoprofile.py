@@ -26,6 +26,7 @@ def ensure_dir(dir_path):
 
 # xhost +;sudo python3 duckypad_autoprofile.py 
 
+appname = 'duckypad_autoswitcher_dpp'
 appname = 'duckypad_autoswitcher'
 appauthor = 'dekuNukem'
 save_path = user_data_dir(appname, appauthor, roaming=True)
@@ -44,9 +45,25 @@ added HID busy check
 
 0.1.0 2023 10 12
 added queue to prevent dropping requests when duckypad is busy
+
+0.2.0
+updated window refresh method from pull request?
+seems a bit laggy tho
+
+0.3.0
+quick edit to work on duckypad pro
+switch profile by name instead of number
+changed timing to make it less laggy, still feels roughly the same tho
+
+0.4.0
+Nov 21 2024
+Now detects both duckyPad and duckyPad Pro
+
+
+
 """
 
-THIS_VERSION_NUMBER = '0.1.0'
+THIS_VERSION_NUMBER = '0.4.0'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -76,15 +93,15 @@ def duckypad_connect(show_box=True):
 
     if init_success is False and 'darwin' in sys.platform and is_root() is False:
         if messagebox.askokcancel("Info", "duckyPad detected, but this app lacks permission to access it.\n\nClick OK to see instructions") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
+            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
         return
     elif init_success is False and 'darwin' in sys.platform and is_root() is True:
         if messagebox.askokcancel("Info", "duckyPad detected, however, due to macOS restrictions, you'll need to enable some privacy settings.\n\nClick OK to learn how.") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/troubleshooting.md#autoswitcher--usb-configuration-isnt-working-on-macos')
+            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
         return
     elif init_success is False and 'linux' in sys.platform:
         if messagebox.askokcancel("Info", "duckyPad detected, but you need to change some settings to use it.\n\nClick OK to learn how.") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/app_posix.md')
+            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
         return
     elif init_success is False:
         messagebox.showinfo("Info", "Failed to connect to duckyPad")
@@ -123,6 +140,7 @@ DP_WRITE_FAIL = 1
 DP_WRITE_BUSY = 2
 
 def duckypad_write_with_retry(data_buf):
+    print(data_buf)
     try:
         hid_rw.duckypad_init()
         if hid_rw.duckypad_get_info()['is_busy']:
@@ -253,17 +271,30 @@ current_app_name_var.set("Current app name:")
 current_window_title_var = StringVar()
 current_window_title_var.set("Current Window Title:")
 
-def duckypad_goto_profile(profile_number):
-    if profile_number is None:
-        return DP_WRITE_OK
-    if not (1 <= profile_number <= 31):
-        return DP_WRITE_OK
-    # print("def duckypad_goto_profile(profile_number):")
-    buffff = [0] * 64
+PC_TO_DUCKYPAD_HID_BUF_SIZE = 64
+
+def duckypad_goto_profile_by_name(profile_name):
+    profile_name = profile_name[:32]
+    buffff = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
+    buffff[0] = 5
+    buffff[2] = 23
+    for index, item in enumerate(profile_name):
+        buffff[index+3] = ord(item)
+    return duckypad_write_with_retry(buffff)
+
+def duckypad_goto_profile_by_index(profile_index):
+    buffff = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
     buffff[0] = 5
     buffff[2] = 1
-    buffff[3] = profile_number
+    buffff[3] = profile_index
     return duckypad_write_with_retry(buffff)
+
+def duckypad_goto_profile(profile_target):
+    try:
+        return duckypad_goto_profile_by_index(int(profile_target))
+    except Exception as e:
+        print('Not a number:', e)
+    return duckypad_goto_profile_by_name(profile_target)
 
 profile_switch_queue = []
 last_switch = None
@@ -284,22 +315,21 @@ def t1_worker():
             profile_switch_queue.pop(0)
             last_switch = queue_head
             print(profile_switch_queue)
-            time.sleep(0.2)
         
-def switch_queue_add(profile_number):
+def switch_queue_add(profile_target_name):
     global last_switch
-    if profile_number is None:
+    if profile_target_name is None or len(profile_target_name) == 0:
         return
-    if profile_number == last_switch:
+    if profile_target_name == last_switch:
         return
-    if len(profile_switch_queue) > 0 and profile_switch_queue[-1] == profile_number:
+    if len(profile_switch_queue) > 0 and profile_switch_queue[-1] == profile_target_name:
         return
-    profile_switch_queue.append(profile_number)
+    profile_switch_queue.append(profile_target_name)
 
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
 
-    root.after(250, update_current_app_and_title)
+    root.after(151, update_current_app_and_title)
 
     # if hid_rw.is_hid_open is False and button_pressed is True:
     #     connection_info_str.set("duckyPad not found")
@@ -325,7 +355,7 @@ def update_current_app_and_title():
         if len(item['window_title']) > 0:
             window_title_condition = item['window_title'].lower() in window_title.lower()
         if app_name_condition and window_title_condition:
-            switch_queue_add(item['switch_to'])
+            switch_queue_add(str(item['switch_to']))
             highlight_index = index
             break
 
@@ -348,15 +378,18 @@ def clean_input(str_input):
     # print("def clean_input(str_input):")
     return str_input.strip()
 
-def check_profile_number(raw_str):
-    # print("def check_profile_number(raw_str):")
-    try:
-        profile_number = int(clean_input(raw_str))
-    except Exception:
-        return None
-    if 1 <= profile_number <= 31:
-        return profile_number
-    return None
+invalid_filename_characters = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+
+def clean_input(str_input, len_limit=None):
+    result = ''.join([x for x in str_input if 32 <= ord(x) <= 126 and x not in invalid_filename_characters])
+    while('  ' in result):
+        result = result.replace('  ', ' ')
+    if len_limit is not None:
+        result = result[:len_limit]
+    return result.strip()
+
+def check_profile_name_or_number(raw_str):
+    return clean_input(raw_str)
 
 def make_rule_str(rule_dict):
     # print("def make_rule_str(rule_dict):")
@@ -373,10 +406,10 @@ def make_rule_str(rule_dict):
     next_item = rule_dict['window_title']
     if len(next_item) <= 0:
         next_item = "[Any]"
-    gap = 29 - len(rule_str)
+    gap = 26 - len(rule_str)
     rule_str += ' '*gap + next_item
 
-    gap = 58 - len(rule_str)
+    gap = 50 - len(rule_str)
     rule_str += ' '*gap + str(rule_dict['switch_to'])
 
     return rule_str
@@ -390,7 +423,7 @@ def save_config():
     try:
         ensure_dir(save_path)
         with open(save_filename, 'w', encoding='utf8') as save_file:
-                save_file.write(json.dumps(config_dict, sort_keys=True))
+            save_file.write(json.dumps(config_dict, sort_keys=True))
     except Exception as e:
         messagebox.showerror("Error", "Save failed!\n\n"+str(traceback.format_exc()))
 
@@ -400,7 +433,7 @@ def save_rule_click(window, this_rule):
         rule_dict = {}
         rule_dict["app_name"] = clean_input(app_name_entrybox.get())
         rule_dict["window_title"] = clean_input(window_name_entrybox.get())
-        rule_dict["switch_to"] = check_profile_number(switch_to_entrybox.get())
+        rule_dict["switch_to"] = check_profile_name_or_number(switch_to_entrybox.get())
         rule_dict["enabled"] = True
         if rule_dict not in config_dict['rules_list']:
             config_dict['rules_list'].append(rule_dict)
@@ -410,7 +443,7 @@ def save_rule_click(window, this_rule):
     elif this_rule is not None:
         this_rule["app_name"] = clean_input(app_name_entrybox.get())
         this_rule["window_title"] = clean_input(window_name_entrybox.get())
-        this_rule["switch_to"] = check_profile_number(switch_to_entrybox.get())
+        this_rule["switch_to"] = check_profile_name_or_number(switch_to_entrybox.get())
         update_rule_list_display()
         save_config()
         window.destroy()
@@ -435,17 +468,17 @@ def create_rule_window(existing_rule=None):
     app_name_label = Label(master=rule_window, text="IF app name contains:")
     app_name_label.place(x=20, y=25)
     app_name_entrybox = Entry(rule_window)
-    app_name_entrybox.place(x=230, y=25, width=200)
+    app_name_entrybox.place(x=250, y=25, width=200)
     
     window_name_label = Label(master=rule_window, text="AND window title contains:")
     window_name_label.place(x=20, y=50)
     window_name_entrybox = Entry(rule_window)
-    window_name_entrybox.place(x=230, y=50, width=200)
+    window_name_entrybox.place(x=250, y=50, width=200)
 
-    switch_to_label = Label(master=rule_window, text="THEN switch to profile #")
+    switch_to_label = Label(master=rule_window, text="THEN switch to profile (case sensitive):")
     switch_to_label.place(x=20, y=75)
     switch_to_entrybox = Entry(rule_window)
-    switch_to_entrybox.place(x=230, y=75, width=200)
+    switch_to_entrybox.place(x=250, y=75, width=200)
 
     if existing_rule is not None:
         app_name_entrybox.insert(0, existing_rule["app_name"])
@@ -460,11 +493,11 @@ def create_rule_window(existing_rule=None):
     rule_done_button.place(x=40, y=80)
 
     match_all_label = Label(master=rule_window, text="(leave blank to match all)")
-    match_all_label.place(x=450, y=25)
+    match_all_label.place(x=470, y=25)
     match_all_label2 = Label(master=rule_window, text="(leave blank to match all)")
-    match_all_label2.place(x=450, y=50)
+    match_all_label2.place(x=470, y=50)
     match_all_label3 = Label(master=rule_window, text="(leave blank for no action)")
-    match_all_label3.place(x=450, y=75)
+    match_all_label3.place(x=470, y=75)
 
     current_window_lf = LabelFrame(rule_window, text="Active window", width=620, height=80)
     current_window_lf.place(x=PADDING, y=110+30)
@@ -546,7 +579,7 @@ profile_lstbox.place(x=PADDING, y=30, width=500)
 profile_lstbox.config(font='TkFixedFont')
 profile_lstbox.bind('<FocusOut>', lambda e: profile_lstbox.selection_clear(0, END))
 
-rule_header_label = Label(master=rules_lf, text="Enabled   App name          Window Title                Profile", font='TkFixedFont')
+rule_header_label = Label(master=rules_lf, text="Enabled   App              Window                 Profile", font='TkFixedFont')
 rule_header_label.place(x=5, y=5)
 
 new_rule_button = Button(rules_lf, text="New rule...", command=create_rule_window)
@@ -592,7 +625,7 @@ refresh_autoswitch()
 
 def fw_update_click(what):
     # print("def fw_update_click(what):")
-    webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/firmware_updates_and_version_history.md')
+    webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/firmware_updates_and_version_history.md')
 
 def app_update_click(event):
     # print("def app_update_click(event):")
@@ -637,5 +670,5 @@ duckypad_connect()
 t1 = threading.Thread(target=t1_worker, daemon=True)
 t1.start()
 
-root.after(250, update_current_app_and_title)
+root.after(151, update_current_app_and_title)
 root.mainloop()
