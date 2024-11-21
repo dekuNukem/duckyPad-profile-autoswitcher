@@ -115,7 +115,7 @@ def duckypad_connect(show_box=True):
             hid_rw.duckypad_close()
             return
         connection_info_label.config(foreground='navy')
-        connection_info_str.set(f"duckyPad found!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
+        connection_info_str.set(f"Connected!      Model: {result['model']}      Serial: {result['serial']}      Firmware: {result['fw_ver']}")
         if fw_update_checked is False:
             print_fw_update_label(result['fw_ver'])
             fw_update_checked = True
@@ -475,7 +475,7 @@ def create_rule_window(existing_rule=None):
     window_name_entrybox = Entry(rule_window)
     window_name_entrybox.place(x=250, y=50, width=200)
 
-    switch_to_label = Label(master=rule_window, text="THEN switch to profile (case sensitive):")
+    switch_to_label = Label(master=rule_window, text="THEN jump to profile (Name or Number):")
     switch_to_label.place(x=20, y=75)
     switch_to_entrybox = Entry(rule_window)
     switch_to_entrybox.place(x=250, y=75, width=200)
@@ -665,6 +665,8 @@ dp_fw_update_label = Label(master=updates_lf, text="duckyPad firmware: Unknown")
 dp_fw_update_label.place(x=5, y=30)
 
 # ------------------
+
+messagebox.showinfo("Info", "Now supporting switching profile by name!\n\nCase sensitive, duckyPad Pro only (for now).\n\n")
 duckypad_connect()
 
 t1 = threading.Thread(target=t1_worker, daemon=True)
