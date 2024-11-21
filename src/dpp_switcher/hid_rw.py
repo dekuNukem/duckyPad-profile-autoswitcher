@@ -34,16 +34,28 @@ def duckypad_get_info():
     dpinfo['is_busy'] = result[2]
     return dpinfo
 
-def get_duckypad_path():
+duckypad_pid = 0xd11c
+duckypad_pro_pid = 0xd11d
+
+def get_path_by_pid(my_pid):
     path_dict = {}
     for device_dict in hid.enumerate():
-        if device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] == 0xd11d:
+        if device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] == my_pid:
             path_dict[device_dict['usage']] = device_dict['path']
     if len(path_dict) == 0:
         return None
     if 58 in path_dict:
         return path_dict[58]
     return list(path_dict.values())[0]
+
+def get_duckypad_path():
+    dpp_path = get_path_by_pid(duckypad_pro_pid)
+    if dpp_path is not None:
+        return dpp_path
+    dp_path = get_path_by_pid(duckypad_pid)
+    if dp_path is not None:
+        return dp_path
+    return None
 
 def hid_read():
     read_start = time.time()
