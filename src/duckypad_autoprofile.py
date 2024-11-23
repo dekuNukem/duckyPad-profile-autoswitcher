@@ -60,6 +60,11 @@ Nov 21 2024
 Now detects both duckyPad and duckyPad Pro
 supports switching profiles by name or number
 UI tweaks
+
+0.4.1
+Nov 23 2024
+fixed wrong FW update URL
+
 """
 
 THIS_VERSION_NUMBER = '0.4.0'
