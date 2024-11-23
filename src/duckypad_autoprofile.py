@@ -638,7 +638,7 @@ def fw_update_click(what):
     if is_dpp:
         webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/firmware_updates_and_version_history.md')
     else:
-        webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/doc/firmware_updates_and_version_history.md')
+        webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/firmware_updates_and_version_history.md')
 
 def app_update_click(event):
     # print("def app_update_click(event):")
