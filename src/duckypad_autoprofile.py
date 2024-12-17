@@ -60,6 +60,11 @@ Nov 21 2024
 Now detects both duckyPad and duckyPad Pro
 supports switching profiles by name or number
 UI tweaks
+
+0.4.1
+Nov 23 2024
+fixed wrong FW update URL
+
 """
 
 THIS_VERSION_NUMBER = '0.4.0'
@@ -639,7 +644,7 @@ def fw_update_click(what):
     if is_dpp:
         webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/firmware_updates_and_version_history.md')
     else:
-        webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/doc/firmware_updates_and_version_history.md')
+        webbrowser.open('https://github.com/dekuNukem/duckyPad/blob/master/firmware_updates_and_version_history.md')
 
 def app_update_click(event):
     # print("def app_update_click(event):")
