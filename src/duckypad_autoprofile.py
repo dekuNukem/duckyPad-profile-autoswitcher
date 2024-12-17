@@ -311,7 +311,6 @@ last_switch = None
 
 def t1_worker():
     global last_switch
-    # print("def t1_worker():")
     while(1):
         time.sleep(0.033)
         if len(profile_switch_queue) == 0:
@@ -336,10 +335,12 @@ def switch_queue_add(profile_target_name):
         return
     profile_switch_queue.append(profile_target_name)
 
+WINDOW_CHECK_FREQUENCY_MS = 100
+
 def update_current_app_and_title():
     # print("def update_current_app_and_title():")
 
-    root.after(151, update_current_app_and_title)
+    root.after(WINDOW_CHECK_FREQUENCY_MS, update_current_app_and_title)
 
     # if hid_rw.is_hid_open is False and button_pressed is True:
     #     connection_info_str.set("duckyPad not found")
@@ -685,5 +686,5 @@ duckypad_connect()
 t1 = threading.Thread(target=t1_worker, daemon=True)
 t1.start()
 
-root.after(151, update_current_app_and_title)
+root.after(WINDOW_CHECK_FREQUENCY_MS, update_current_app_and_title)
 root.mainloop()
