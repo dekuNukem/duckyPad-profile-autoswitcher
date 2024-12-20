@@ -65,9 +65,14 @@ UI tweaks
 Nov 23 2024
 fixed wrong FW update URL
 
+0.4.2
+Dec 20 2024
+Fixed UI button size for macOS
+Updated macOS info URL
+
 """
 
-THIS_VERSION_NUMBER = '0.4.0'
+THIS_VERSION_NUMBER = '0.4.2'
 MAIN_WINDOW_WIDTH = 640
 MAIN_WINDOW_HEIGHT = 660
 PADDING = 10
@@ -96,25 +101,23 @@ def duckypad_connect(show_box=True):
         init_success = False
 
     if init_success is False:
-        connection_info_str.set("duckyPad detected but lacks permission")
+        connection_info_str.set("duckyPad detected, but I need additional permissions!")
         connection_info_label.config(foreground='red')
 
     if init_success is False and show_box is False:
         return
 
-    if init_success is False and 'darwin' in sys.platform and is_root() is False:
-        if messagebox.askokcancel("Info", "duckyPad detected, but this app lacks permission to access it.\n\nClick OK to see instructions") is True:
+    if init_success is False and 'linux' in sys.platform:
+        messagebox.showinfo("Info", "duckyPad detected, but please run me in sudo!")
+        return
+
+    if init_success is False and 'darwin' in sys.platform:
+        box_result = messagebox.askokcancel("Info", "duckyPad detected, but I need additional permissions!\n\nClick OK for instructions.")
+        if box_result is True:
             webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
         return
-    elif init_success is False and 'darwin' in sys.platform and is_root() is True:
-        if messagebox.askokcancel("Info", "duckyPad detected, however, due to macOS restrictions, you'll need to enable some privacy settings.\n\nClick OK to learn how.") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
-        return
-    elif init_success is False and 'linux' in sys.platform:
-        if messagebox.askokcancel("Info", "duckyPad detected, but you need to change some settings to use it.\n\nClick OK to learn how.") is True:
-            webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
-        return
-    elif init_success is False:
+
+    if init_success is False:
         messagebox.showinfo("Info", "Failed to connect to duckyPad")
         return
 
@@ -208,8 +211,7 @@ connection_info_label.place(x=110, y=5)
 connection_info_label.config(foreground='orange red')
 
 connection_button = Button(connection_info_lf, text="Connect", command=duckypad_connect)
-connection_button.config(width=11, height=1)
-connection_button.place(x=PADDING, y=5)
+connection_button.place(x=PADDING, y=5, width=100)
 
 # --------------------
 
@@ -254,24 +256,19 @@ def open_save_folder():
 dashboard_lf = LabelFrame(root, text="Dashboard", width=620, height=95)
 dashboard_lf.place(x=PADDING, y=60) 
 prev_profile_button = Button(dashboard_lf, text="Prev Profile", command=prev_prof_click)
-prev_profile_button.config(width=11, height=1)
-prev_profile_button.place(x=410, y=5)
+prev_profile_button.place(x=410, y=5, width=100)
 
 next_profile_button = Button(dashboard_lf, text="Next Profile", command=next_prof_click)
-next_profile_button.config(width=11, height=1)
-next_profile_button.place(x=510, y=5)
+next_profile_button.place(x=510, y=5, width=100)
 
 user_manual_button = Button(dashboard_lf, text="User Manual", command=open_user_manual)
-user_manual_button.config(width=11, height=1)
-user_manual_button.place(x=PADDING, y=5)
+user_manual_button.place(x=PADDING, y=5, width=100)
 
 discord_button = Button(dashboard_lf, text="Discord", command=open_discord)
-discord_button.config(width=11, height=1)
-discord_button.place(x=110, y=5)
+discord_button.place(x=110, y=5, width=100)
 
 discord_button = Button(dashboard_lf, text="Backup", command=open_save_folder)
-discord_button.config(width=11, height=1)
-discord_button.place(x=210, y=5)
+discord_button.place(x=210, y=5, width=100)
 
 autoswitch_status_var = StringVar()
 autoswitch_status_label = Label(master=dashboard_lf, textvariable=autoswitch_status_var, font='TkFixedFont', cursor="hand2")
@@ -505,8 +502,7 @@ def create_rule_window(existing_rule=None):
             switch_to_entrybox.insert(0, str(existing_rule["switch_to"]))
 
     rule_done_button = Button(rule_edit_lf, text="Save", command=lambda:save_rule_click(rule_window, existing_rule))
-    rule_done_button.config(width=75, height=1)
-    rule_done_button.place(x=40, y=80)
+    rule_done_button.place(x=30, y=80, width=550)
 
     match_all_label = Label(master=rule_window, text="(leave blank to match all)")
     match_all_label.place(x=470, y=25)
@@ -526,8 +522,7 @@ def create_rule_window(existing_rule=None):
     window_list_lf = LabelFrame(rule_window, text="All windows", width=620, height=270)
     window_list_lf.place(x=PADDING, y=195+30) 
     window_list_fresh_button = Button(window_list_lf, text="Refresh", command=lambda:update_windows(windows_list_text_area))
-    window_list_fresh_button.config(width=80, height=1)
-    window_list_fresh_button.place(x=20, y=220)
+    window_list_fresh_button.place(x=30, y=220, width=550)
     windows_list_text_area = ScrolledText.ScrolledText(window_list_lf, wrap='none', width = 73, height = 13)
     windows_list_text_area.place(x=5, y=5)
     root.update()
@@ -599,28 +594,22 @@ rule_header_label = Label(master=rules_lf, text="Enabled   App              Wind
 rule_header_label.place(x=5, y=5)
 
 new_rule_button = Button(rules_lf, text="New rule...", command=create_rule_window)
-new_rule_button.config(width=11, height=1)
-new_rule_button.place(x=520, y=30)
+new_rule_button.place(x=520, y=30, width=100)
 
 edit_rule_button = Button(rules_lf, text="Edit rule...", command=edit_rule_click)
-edit_rule_button.config(width=11, height=1)
-edit_rule_button.place(x=520, y=70)
+edit_rule_button.place(x=520, y=70, width=100)
 
 move_up_button = Button(rules_lf, text="Move up", command=rule_shift_up)
-move_up_button.config(width=11, height=1)
-move_up_button.place(x=520, y=150)
+move_up_button.place(x=520, y=150, width=100)
 
 toggle_rule_button = Button(rules_lf, text="On/Off", command=toggle_rule_click)
-toggle_rule_button.config(width=11, height=1)
-toggle_rule_button.place(x=520, y=190)
+toggle_rule_button.place(x=520, y=190, width=100)
 
 move_down_button = Button(rules_lf, text="Move down", command=rule_shift_down)
-move_down_button.config(width=11, height=1)
-move_down_button.place(x=520, y=230)
+move_down_button.place(x=520, y=230, width=100)
 
 delete_rule_button = Button(rules_lf, text="Delete rule", command=delete_rule_click)
-delete_rule_button.config(width=11, height=1)
-delete_rule_button.place(x=520, y=300)
+delete_rule_button.place(x=520, y=300, width=100)
 
 try:
     with open(save_filename) as json_file:
