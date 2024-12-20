@@ -23,7 +23,6 @@ def clean(additional=None):
 			except:
 				print(f'Error deleting {_target}.')
 
-
 THIS_VERSION = None
 try:
 	mainfile = open('duckypad_autoprofile.py')
@@ -49,6 +48,5 @@ new_name = os.path.join(output_folder_path, "duckypad_autoprofile_" + THIS_VERSI
 
 os.rename(original_name, new_name)
 zip_file_name = "duckypad_autoprofile_" + THIS_VERSION + "_win10_x64"
-print(zip_file_name)
-# shutil.make_archive(zip_file_name, 'zip', new_name)
-# clean()
+shutil.make_archive(zip_file_name, 'zip', new_name)
+clean()

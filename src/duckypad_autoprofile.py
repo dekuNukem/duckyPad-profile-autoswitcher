@@ -82,7 +82,6 @@ is_dpp = False
 print("\n\n--------------------------")
 print("\n\nWelcome to duckyPad Autoswitcher!\n")
 print("This window prints debug information.")
-print("Used for troubleshooting if it crashes.\n\n")
 
 def duckypad_connect(show_box=True):
     # print("def duckypad_connect():")
