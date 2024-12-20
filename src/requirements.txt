@@ -1,3 +1,4 @@
 hidapi
-ctwin32
+ctwin32 ; sys_platform == 'win32'
 platformdirs
+ewmh ; sys_platform == 'linux'
