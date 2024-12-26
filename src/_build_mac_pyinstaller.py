@@ -55,7 +55,7 @@ os.rename(output_folder_path, new_folder_path)
 
 f = open(os.path.join(new_folder_path, "run.sh"), "w")
 f.write("echo\n")
-f.write("echo Welcome to duckyPad!\n")
+f.write("echo Welcome to duckyPad Autoswitcher!\n")
 f.write("echo\n")
 f.write("echo To Connect, Please Authenticate.\n")
 f.write("echo\n")

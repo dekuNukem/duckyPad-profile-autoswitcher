@@ -72,9 +72,14 @@ Updated macOS info URL
 
 """
 
+UI_SCALE = float(os.getenv("DUCKYPAD_UI_SCALE", default=1))
+
+def scaled_size(size: int) -> int:
+    return int(size * UI_SCALE)
+
 THIS_VERSION_NUMBER = '0.4.2'
-MAIN_WINDOW_WIDTH = 640
-MAIN_WINDOW_HEIGHT = 660
+MAIN_WINDOW_WIDTH = scaled_size(640)
+MAIN_WINDOW_HEIGHT = scaled_size(660)
 PADDING = 10
 fw_update_checked = False
 is_dpp = False
@@ -196,21 +201,21 @@ def next_prof_click():
 
 root = Tk()
 root.title("duckyPad autoswitcher " + THIS_VERSION_NUMBER)
-root.geometry(str(MAIN_WINDOW_WIDTH) + "x" + str(MAIN_WINDOW_HEIGHT))
+root.geometry(f"{MAIN_WINDOW_WIDTH}x{MAIN_WINDOW_HEIGHT}")
 root.resizable(width=FALSE, height=FALSE)
 
 # --------------------
 
 connection_info_str = StringVar()
 connection_info_str.set("<--- Press Connect button")
-connection_info_lf = LabelFrame(root, text="Connection", width=620, height=60)
-connection_info_lf.place(x=PADDING, y=0) 
+connection_info_lf = LabelFrame(root, text="Connection", width=scaled_size(620), height=scaled_size(60))
+connection_info_lf.place(x=scaled_size(PADDING), y=scaled_size(0)) 
 connection_info_label = Label(master=connection_info_lf, textvariable=connection_info_str)
-connection_info_label.place(x=110, y=5)
+connection_info_label.place(x=scaled_size(110), y=scaled_size(5))
 connection_info_label.config(foreground='orange red')
 
 connection_button = Button(connection_info_lf, text="Connect", command=duckypad_connect)
-connection_button.place(x=PADDING, y=5, width=100)
+connection_button.place(x=scaled_size(PADDING), y=scaled_size(5), width=scaled_size(100))
 
 # --------------------
 
@@ -252,26 +257,26 @@ def open_save_folder():
     else:
         webbrowser.open(save_path)
 
-dashboard_lf = LabelFrame(root, text="Dashboard", width=620, height=95)
-dashboard_lf.place(x=PADDING, y=60) 
+dashboard_lf = LabelFrame(root, text="Dashboard", width=scaled_size(620), height=scaled_size(95))
+dashboard_lf.place(x=scaled_size(PADDING), y=scaled_size(60)) 
 prev_profile_button = Button(dashboard_lf, text="Prev Profile", command=prev_prof_click)
-prev_profile_button.place(x=410, y=5, width=100)
+prev_profile_button.place(x=scaled_size(410), y=scaled_size(5), width=scaled_size(100))
 
 next_profile_button = Button(dashboard_lf, text="Next Profile", command=next_prof_click)
-next_profile_button.place(x=510, y=5, width=100)
+next_profile_button.place(x=scaled_size(510), y=scaled_size(5), width=scaled_size(100))
 
 user_manual_button = Button(dashboard_lf, text="User Manual", command=open_user_manual)
-user_manual_button.place(x=PADDING, y=5, width=100)
+user_manual_button.place(x=scaled_size(PADDING), y=scaled_size(5), width=scaled_size(100))
 
 discord_button = Button(dashboard_lf, text="Discord", command=open_discord)
-discord_button.place(x=110, y=5, width=100)
+discord_button.place(x=scaled_size(110), y=scaled_size(5), width=scaled_size(100))
 
 discord_button = Button(dashboard_lf, text="Backup", command=open_save_folder)
-discord_button.place(x=210, y=5, width=100)
+discord_button.place(x=scaled_size(210), y=scaled_size(5), width=scaled_size(100))
 
 autoswitch_status_var = StringVar()
 autoswitch_status_label = Label(master=dashboard_lf, textvariable=autoswitch_status_var, font='TkFixedFont', cursor="hand2")
-autoswitch_status_label.place(x=10, y=40)
+autoswitch_status_label.place(x=scaled_size(10), y=scaled_size(40))
 autoswitch_status_label.bind("<Button-1>", toggle_autoswitch)
 
 # --------------------
@@ -461,6 +466,8 @@ def save_rule_click(window, this_rule):
         window.destroy()
 
 rule_window = None
+RULE_WINDOW_WIDTH = scaled_size(640)
+RULE_WINDOW_HEIGHT = scaled_size(510)
 
 def create_rule_window(existing_rule=None):
     # print("def create_rule_window(existing_rule=None):")
@@ -470,27 +477,27 @@ def create_rule_window(existing_rule=None):
     global switch_to_entrybox
     rule_window = Toplevel(root)
     rule_window.title("Edit rules")
-    rule_window.geometry("640x510")
+    rule_window.geometry(f"{RULE_WINDOW_WIDTH}x{RULE_WINDOW_HEIGHT}")
     rule_window.resizable(width=FALSE, height=FALSE)
     rule_window.grab_set()
 
-    rule_edit_lf = LabelFrame(rule_window, text="Rules", width=620, height=130)
-    rule_edit_lf.place(x=10, y=5)
+    rule_edit_lf = LabelFrame(rule_window, text="Rules", width=scaled_size(620), height=scaled_size(130))
+    rule_edit_lf.place(x=scaled_size(10), y=scaled_size(5))
 
     app_name_label = Label(master=rule_window, text="IF app name contains:")
-    app_name_label.place(x=20, y=25)
+    app_name_label.place(x=scaled_size(20), y=scaled_size(25))
     app_name_entrybox = Entry(rule_window)
-    app_name_entrybox.place(x=250, y=25, width=200)
+    app_name_entrybox.place(x=scaled_size(250), y=scaled_size(25), width=scaled_size(200))
     
     window_name_label = Label(master=rule_window, text="AND window title contains:")
-    window_name_label.place(x=20, y=50)
+    window_name_label.place(x=scaled_size(20), y=scaled_size(50))
     window_name_entrybox = Entry(rule_window)
-    window_name_entrybox.place(x=250, y=50, width=200)
+    window_name_entrybox.place(x=scaled_size(250), y=scaled_size(50), width=scaled_size(200))
 
     switch_to_label = Label(master=rule_window, text="THEN jump to profile (Name or Number):")
-    switch_to_label.place(x=20, y=75)
+    switch_to_label.place(x=scaled_size(20), y=scaled_size(75))
     switch_to_entrybox = Entry(rule_window)
-    switch_to_entrybox.place(x=250, y=75, width=200)
+    switch_to_entrybox.place(x=scaled_size(250), y=scaled_size(75), width=scaled_size(200))
 
     if existing_rule is not None:
         app_name_entrybox.insert(0, existing_rule["app_name"])
@@ -501,29 +508,29 @@ def create_rule_window(existing_rule=None):
             switch_to_entrybox.insert(0, str(existing_rule["switch_to"]))
 
     rule_done_button = Button(rule_edit_lf, text="Save", command=lambda:save_rule_click(rule_window, existing_rule))
-    rule_done_button.place(x=30, y=80, width=550)
+    rule_done_button.place(x=scaled_size(30), y=scaled_size(80), width=scaled_size(550))
 
     match_all_label = Label(master=rule_window, text="(leave blank to match all)")
-    match_all_label.place(x=470, y=25)
+    match_all_label.place(x=scaled_size(470), y=scaled_size(25))
     match_all_label2 = Label(master=rule_window, text="(leave blank to match all)")
-    match_all_label2.place(x=470, y=50)
+    match_all_label2.place(x=scaled_size(470), y=scaled_size(50))
     match_all_label3 = Label(master=rule_window, text="(leave blank for no action)")
-    match_all_label3.place(x=470, y=75)
+    match_all_label3.place(x=scaled_size(470), y=scaled_size(75))
 
-    current_window_lf = LabelFrame(rule_window, text="Active window", width=620, height=80)
-    current_window_lf.place(x=PADDING, y=110+30)
+    current_window_lf = LabelFrame(rule_window, text="Active window", width=scaled_size(620), height=scaled_size(80))
+    current_window_lf.place(x=scaled_size(PADDING), y=scaled_size(140))
 
     current_app_name_label = Label(master=current_window_lf, textvariable=current_app_name_var, font='TkFixedFont')
-    current_app_name_label.place(x=10, y=5)
+    current_app_name_label.place(x=scaled_size(10), y=scaled_size(5))
     current_window_title_label = Label(master=current_window_lf, textvariable=current_window_title_var, font='TkFixedFont')
-    current_window_title_label.place(x=10, y=30)
+    current_window_title_label.place(x=scaled_size(10), y=scaled_size(30))
 
-    window_list_lf = LabelFrame(rule_window, text="All windows", width=620, height=270)
-    window_list_lf.place(x=PADDING, y=195+30) 
+    window_list_lf = LabelFrame(rule_window, text="All windows", width=scaled_size(620), height=scaled_size(270))
+    window_list_lf.place(x=scaled_size(PADDING), y=scaled_size(195+30)) 
     window_list_fresh_button = Button(window_list_lf, text="Refresh", command=lambda:update_windows(windows_list_text_area))
-    window_list_fresh_button.place(x=30, y=220, width=550)
-    windows_list_text_area = ScrolledText.ScrolledText(window_list_lf, wrap='none', width = 73, height = 13)
-    windows_list_text_area.place(x=5, y=5)
+    window_list_fresh_button.place(x=scaled_size(30), y=scaled_size(220), width=scaled_size(550))
+    windows_list_text_area = ScrolledText.ScrolledText(window_list_lf, wrap='none', width=scaled_size(73), height=scaled_size(13))
+    windows_list_text_area.place(x=scaled_size(5), y=scaled_size(5))
     root.update()
     update_windows(windows_list_text_area)
 
@@ -580,35 +587,35 @@ def rule_shift_down():
     update_rule_list_display()
     save_config()
 
-rules_lf = LabelFrame(root, text="Autoswitch rules", width=620, height=410)
-rules_lf.place(x=PADDING, y=160) 
+rules_lf = LabelFrame(root, text="Autoswitch rules", width=scaled_size(620), height=scaled_size(410))
+rules_lf.place(x=scaled_size(PADDING), y=scaled_size(160)) 
 
 profile_var = StringVar()
-profile_lstbox = Listbox(rules_lf, listvariable=profile_var, height=20, exportselection=0)
-profile_lstbox.place(x=PADDING, y=30, width=500)
+profile_lstbox = Listbox(rules_lf, listvariable=profile_var, height=scaled_size(20), exportselection=0)
+profile_lstbox.place(x=scaled_size(PADDING), y=scaled_size(30), width=scaled_size(500))
 profile_lstbox.config(font='TkFixedFont')
 profile_lstbox.bind('<FocusOut>', lambda e: profile_lstbox.selection_clear(0, END))
 
 rule_header_label = Label(master=rules_lf, text="Enabled   App              Window                 Profile", font='TkFixedFont')
-rule_header_label.place(x=5, y=5)
+rule_header_label.place(x=scaled_size(5), y=scaled_size(5))
 
 new_rule_button = Button(rules_lf, text="New rule...", command=create_rule_window)
-new_rule_button.place(x=520, y=30, width=100)
+new_rule_button.place(x=scaled_size(520), y=scaled_size(30), width=scaled_size(100))
 
 edit_rule_button = Button(rules_lf, text="Edit rule...", command=edit_rule_click)
-edit_rule_button.place(x=520, y=70, width=100)
+edit_rule_button.place(x=scaled_size(520), y=scaled_size(70), width=scaled_size(100))
 
 move_up_button = Button(rules_lf, text="Move up", command=rule_shift_up)
-move_up_button.place(x=520, y=150, width=100)
+move_up_button.place(x=scaled_size(520), y=scaled_size(150), width=scaled_size(100))
 
 toggle_rule_button = Button(rules_lf, text="On/Off", command=toggle_rule_click)
-toggle_rule_button.place(x=520, y=190, width=100)
+toggle_rule_button.place(x=scaled_size(520), y=scaled_size(190), width=scaled_size(100))
 
 move_down_button = Button(rules_lf, text="Move down", command=rule_shift_down)
-move_down_button.place(x=520, y=230, width=100)
+move_down_button.place(x=scaled_size(520), y=scaled_size(230), width=scaled_size(100))
 
 delete_rule_button = Button(rules_lf, text="Delete rule", command=delete_rule_click)
-delete_rule_button.place(x=520, y=300, width=100)
+delete_rule_button.place(x=scaled_size(520), y=scaled_size(300), width=scaled_size(100))
 
 try:
     with open(save_filename) as json_file:
@@ -651,11 +658,11 @@ def print_fw_update_label(this_version):
         dp_fw_update_label.config(text='duckyPad firmware: Unknown', fg='black', bg=default_button_color)
         dp_fw_update_label.unbind("<Button-1>")
 
-updates_lf = LabelFrame(root, text="Updates", width=620, height=80)
-updates_lf.place(x=PADDING, y=570)
+updates_lf = LabelFrame(root, text="Updates", width=scaled_size(620), height=scaled_size(80))
+updates_lf.place(x=scaled_size(PADDING), y=scaled_size(570))
 
 pc_app_update_label = Label(master=updates_lf)
-pc_app_update_label.place(x=5, y=5)
+pc_app_update_label.place(x=scaled_size(5), y=scaled_size(5))
 update_stats = check_update.get_pc_app_update_status(THIS_VERSION_NUMBER)
 
 if update_stats == 0:
@@ -669,7 +676,7 @@ else:
     pc_app_update_label.unbind("<Button-1>")
 
 dp_fw_update_label = Label(master=updates_lf, text="duckyPad firmware: Unknown")
-dp_fw_update_label.place(x=5, y=30)
+dp_fw_update_label.place(x=scaled_size(5), y=scaled_size(30))
 
 # ------------------
 
