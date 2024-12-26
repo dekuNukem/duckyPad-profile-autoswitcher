@@ -1,40 +1,40 @@
 import time
 import platform
 
-p = platform.system()
+this_os = platform.system()
 
-if p == 'Windows':
+if this_os == 'Windows':
     import ctypes
     import ctwin32
     import ctwin32.ntdll
     import ctwin32.user
     import pygetwindow as gw
-elif p == 'Darwin':
+elif this_os == 'Darwin':
     from AppKit import NSWorkspace
     import Quartz
-elif p == 'Linux':
+elif this_os == 'Linux':
     from ewmh import EWMH
     import psutil
     import Xlib
     NET_WM_NAME = Xlib.display.Display().intern_atom('_NET_WM_NAME')
 
 def get_active_window():
-    if p == 'Windows':
+    if this_os == 'Windows':
         return win_get_active_window()
-    elif p == 'Darwin':
+    elif this_os == 'Darwin':
         return darwin_get_active_window()
-    elif p == 'Linux':
+    elif this_os == 'Linux':
         return linux_get_active_window()
-    raise 'Platform %s not supported' % p
+    raise f'Platform {this_os} not supported'
 
 def get_list_of_all_windows():
-    if p == 'Windows':
+    if this_os == 'Windows':
         return win_get_list_of_all_windows()
-    elif p == 'Darwin':
+    elif this_os == 'Darwin':
         return darwin_get_list_of_all_windows()
-    elif p == 'Linux':
+    elif this_os == 'Linux':
         return linux_get_list_of_all_windows()
-    raise 'Platform %s not supported' % p
+    raise f'Platform {this_os} not supported'
 
 def linux_get_list_of_all_windows():
     ret = set()
@@ -52,7 +52,7 @@ def linux_get_list_of_all_windows():
         if not wm_name:
             wm_name = window.get_full_property(NET_WM_NAME, 0).value
         if not wm_name:
-            wm_name = 'class:{}'.format(window.get_wm_class()[0])
+            wm_name = f'class:{window.get_wm_class()[0]}'
         if isinstance(wm_name, bytes):
             wm_name = wm_name.decode('utf-8')
         ret.add((app, wm_name))
@@ -74,7 +74,7 @@ def linux_get_active_window():
     if not wm_name:
         wm_name = active_window.get_full_property(NET_WM_NAME, 0).value
     if not wm_name:
-        wm_name = 'class:{}'.format(active_window.get_wm_class()[0])
+        wm_name = f'class:{active_window.get_wm_class()[0]}'
     if isinstance(wm_name, bytes):
         wm_name = wm_name.decode('utf-8')
     if win_pid:
