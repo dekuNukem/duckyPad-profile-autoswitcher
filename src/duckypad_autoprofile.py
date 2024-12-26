@@ -66,10 +66,10 @@ Nov 23 2024
 fixed wrong FW update URL
 
 0.4.2
-Dec 20 2024
+Dec 26 2024
 Fixed UI button size for macOS
 Updated macOS info URL
-
+Added DUCKYPAD_UI_SCALE environment variable
 """
 
 UI_SCALE = float(os.getenv("DUCKYPAD_UI_SCALE", default=1))
