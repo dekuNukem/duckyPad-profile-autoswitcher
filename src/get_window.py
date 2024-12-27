@@ -135,4 +135,15 @@ def win_get_active_window():
         return '', ''
     return (win_get_app_name(active_window._hWnd), active_window.title)
 
-# print(get_list_of_all_windows())
+if __name__ == "__main__":
+
+    # list of tuples of str: (app_name, window_title)
+    all_win = get_list_of_all_windows()
+    print("\n----- All Windows -----\n")
+    for item in all_win:
+        print(item)
+
+
+    print("\n----- Current Window -----\n")
+    current_win = get_active_window()
+    print(current_win)
