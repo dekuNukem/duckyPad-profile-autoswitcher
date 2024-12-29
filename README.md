@@ -16,11 +16,9 @@ Extract the `.zip` file and launch the app by clicking `duckypad_autoprofile.exe
 
 ![Alt text](resources/app.png)
 
-Windows might complain about unsigned app.
+Windows might complain about unsigned app. Click `More info` and then `Run anyway`.
 
-Click `More info` and then `Run anyway`.
-
-Feel free to [review the files](../pc_software), or run the source code directly with Python.
+Feel free to [review the files](./src), or run the source code directly with Python.
 
 ![Alt text](resources/defender.png)
 
@@ -38,7 +36,7 @@ Feel free to [review the files](../pc_software), or run the source code directly
 * Launch the app: `sudo DUCKYPAD_UI_SCALE=1 python3 ./duckypad_config.py`
 	* For High-DPI screens, adjust `DUCKYPAD_UI_SCALE` environment variable.
 
-If window detection isn't working properly, you might need to implement your own `get_list_of_all_windows()` and `get_active_window()` in `get_window.py`.
+If window detection isn't working, you might need to implement your own `get_list_of_all_windows()` and `get_active_window()` in `get_window.py`.
 
 ### Using the App
 
@@ -105,7 +103,7 @@ The easiest way is to place a shortcut in the Startup folder:
 
 ## HID Command Protocol
 
-Of course, now that duckyPad supports HID communication, you can write your own program to control it from PC!
+You can also write your own program to control duckyPad.
 
 [Click me for details](HID_details.md)!
 
