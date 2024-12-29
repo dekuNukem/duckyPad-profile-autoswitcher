@@ -217,7 +217,7 @@ connection_info_label.place(x=scaled_size(110), y=scaled_size(5))
 connection_info_label.config(foreground='orange red')
 
 connection_button = Button(connection_info_lf, text="Connect", command=duckypad_connect)
-connection_button.place(x=scaled_size(PADDING), y=scaled_size(5), width=scaled_size(100))
+connection_button.place(x=scaled_size(PADDING), y=scaled_size(5), width=scaled_size(90))
 
 # --------------------
 
@@ -262,19 +262,19 @@ def open_save_folder():
 dashboard_lf = LabelFrame(root, text="Dashboard", width=scaled_size(620), height=scaled_size(95))
 dashboard_lf.place(x=scaled_size(PADDING), y=scaled_size(60)) 
 prev_profile_button = Button(dashboard_lf, text="Prev Profile", command=prev_prof_click)
-prev_profile_button.place(x=scaled_size(410), y=scaled_size(5), width=scaled_size(100))
+prev_profile_button.place(x=scaled_size(410), y=scaled_size(5), width=scaled_size(90))
 
 next_profile_button = Button(dashboard_lf, text="Next Profile", command=next_prof_click)
-next_profile_button.place(x=scaled_size(510), y=scaled_size(5), width=scaled_size(100))
+next_profile_button.place(x=scaled_size(510), y=scaled_size(5), width=scaled_size(90))
 
 user_manual_button = Button(dashboard_lf, text="User Manual", command=open_user_manual)
-user_manual_button.place(x=scaled_size(PADDING), y=scaled_size(5), width=scaled_size(100))
+user_manual_button.place(x=scaled_size(PADDING), y=scaled_size(5), width=scaled_size(90))
 
 discord_button = Button(dashboard_lf, text="Discord", command=open_discord)
-discord_button.place(x=scaled_size(110), y=scaled_size(5), width=scaled_size(100))
+discord_button.place(x=scaled_size(110), y=scaled_size(5), width=scaled_size(90))
 
 discord_button = Button(dashboard_lf, text="Backup", command=open_save_folder)
-discord_button.place(x=scaled_size(210), y=scaled_size(5), width=scaled_size(100))
+discord_button.place(x=scaled_size(210), y=scaled_size(5), width=scaled_size(90))
 
 autoswitch_status_var = StringVar()
 autoswitch_status_label = Label(master=dashboard_lf, textvariable=autoswitch_status_var, font='TkFixedFont', cursor="hand2")
@@ -602,22 +602,22 @@ rule_header_label = Label(master=rules_lf, text="Enabled   App              Wind
 rule_header_label.place(x=scaled_size(5), y=scaled_size(5))
 
 new_rule_button = Button(rules_lf, text="New rule...", command=create_rule_window)
-new_rule_button.place(x=scaled_size(520), y=scaled_size(30), width=scaled_size(100))
+new_rule_button.place(x=scaled_size(520), y=scaled_size(30), width=scaled_size(90))
 
 edit_rule_button = Button(rules_lf, text="Edit rule...", command=edit_rule_click)
-edit_rule_button.place(x=scaled_size(520), y=scaled_size(70), width=scaled_size(100))
+edit_rule_button.place(x=scaled_size(520), y=scaled_size(70), width=scaled_size(90))
 
 move_up_button = Button(rules_lf, text="Move up", command=rule_shift_up)
-move_up_button.place(x=scaled_size(520), y=scaled_size(150), width=scaled_size(100))
+move_up_button.place(x=scaled_size(520), y=scaled_size(150), width=scaled_size(90))
 
 toggle_rule_button = Button(rules_lf, text="On/Off", command=toggle_rule_click)
-toggle_rule_button.place(x=scaled_size(520), y=scaled_size(190), width=scaled_size(100))
+toggle_rule_button.place(x=scaled_size(520), y=scaled_size(190), width=scaled_size(90))
 
 move_down_button = Button(rules_lf, text="Move down", command=rule_shift_down)
-move_down_button.place(x=scaled_size(520), y=scaled_size(230), width=scaled_size(100))
+move_down_button.place(x=scaled_size(520), y=scaled_size(230), width=scaled_size(90))
 
 delete_rule_button = Button(rules_lf, text="Delete rule", command=delete_rule_click)
-delete_rule_button.place(x=scaled_size(520), y=scaled_size(300), width=scaled_size(100))
+delete_rule_button.place(x=scaled_size(520), y=scaled_size(300), width=scaled_size(90))
 
 try:
     with open(save_filename) as json_file:
