@@ -70,6 +70,7 @@ Dec 26 2024
 Fixed UI button size for macOS
 Updated macOS info URL
 Added DUCKYPAD_UI_SCALE environment variable
+Exits gracefully instead of crashing when not in sudo on macOS
 """
 
 UI_SCALE = float(os.getenv("DUCKYPAD_UI_SCALE", default=1))
@@ -119,6 +120,7 @@ def duckypad_connect(show_box=True):
         box_result = messagebox.askokcancel("Info", "duckyPad detected, but I need additional permissions!\n\nClick OK for instructions.")
         if box_result is True:
             webbrowser.open('https://github.com/dekuNukem/duckyPad-Pro/blob/master/doc/linux_macos_notes.md')
+        exit()
         return
 
     if init_success is False:
@@ -494,7 +496,7 @@ def create_rule_window(existing_rule=None):
     window_name_entrybox = Entry(rule_window)
     window_name_entrybox.place(x=scaled_size(250), y=scaled_size(50), width=scaled_size(200))
 
-    switch_to_label = Label(master=rule_window, text="THEN jump to profile (Name or Number):")
+    switch_to_label = Label(master=rule_window, text="THEN jump to profile (Name or #):")
     switch_to_label.place(x=scaled_size(20), y=scaled_size(75))
     switch_to_entrybox = Entry(rule_window)
     switch_to_entrybox.place(x=scaled_size(250), y=scaled_size(75), width=scaled_size(200))
