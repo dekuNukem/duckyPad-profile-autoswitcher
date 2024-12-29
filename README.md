@@ -26,11 +26,19 @@ Feel free to [review the files](../pc_software), or run the source code directly
 
 ### Mac
 
-![Alt text](resources/underc.gif)
+[See instruction here!](./linux_macos_notes.md)
 
 ### Linux
 
-![Alt text](resources/underc.gif)
+[Download the latest source release here](https://github.com/dekuNukem/duckyPad-profile-autoswitcher/releases/latest)
+
+* Unzip & open a terminal at the directory
+* Install tkinter: `sudo apt install python3-tk`
+* Install dependencies: `sudo pip3 install -r requirements.txt`
+* Launch the app: `sudo DUCKYPAD_UI_SCALE=1 python3 ./duckypad_config.py`
+	* For High-DPI screens, adjust `DUCKYPAD_UI_SCALE` environment variable.
+
+If window detection isn't working properly, you might need to implement your own `get_list_of_all_windows()` and `get_active_window()` in `get_window.py`.
 
 ### Using the App
 

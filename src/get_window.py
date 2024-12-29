@@ -136,14 +136,26 @@ def win_get_active_window():
     return (win_get_app_name(active_window._hWnd), active_window.title)
 
 if __name__ == "__main__":
+    """
+    get_list_of_all_windows() should return a list of all windows
 
-    # list of tuples of str: (app_name, window_title)
-    all_win = get_list_of_all_windows()
+    A list of str tuples: (app_name, window_title)
+
+    Sample:
+    [('explorer', 'src'),
+    ('mintty', 'MINGW64:/c/Users/dekuNukem/Desktop/'),
+    ('powershell', 'Windows PowerShell')]
+    """
     print("\n----- All Windows -----\n")
-    for item in all_win:
+    for item in get_list_of_all_windows():
         print(item)
 
+    """
+    get_active_window() should return the window that's currently in focus
 
+    tuple of str: (app_name, window_title)
+    
+    e.g.: ('explorer', 'src')
+    """
     print("\n----- Current Window -----\n")
-    current_win = get_active_window()
-    print(current_win)
+    print(get_active_window())
