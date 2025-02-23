@@ -311,7 +311,8 @@ def duckypad_goto_profile(profile_target):
     try:
         return duckypad_goto_profile_by_index(int(profile_target))
     except Exception as e:
-        print('Not a number:', e)
+        # print('Not a number:', e)
+        pass
     return duckypad_goto_profile_by_name(profile_target)
 
 profile_switch_queue = []
