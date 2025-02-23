@@ -24,7 +24,7 @@ duckypad_pid = 0xd11c
 duckypad_pro_pid = 0xd11d
 valid_pid_list = [duckypad_pro_pid, duckypad_pid]
 
-def get_path_by_pid(my_pid):
+def get_duckypad_path():
     path_dict = {}
     for device_dict in hid.enumerate():
         if device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] in valid_pid_list:
@@ -34,15 +34,6 @@ def get_path_by_pid(my_pid):
     if 58 in path_dict:
         return path_dict[58]
     return list(path_dict.values())[0]
-
-def get_duckypad_path():
-    dpp_path = get_path_by_pid(duckypad_pro_pid)
-    if dpp_path is not None:
-        return dpp_path
-    dp_path = get_path_by_pid(duckypad_pid)
-    if dp_path is not None:
-        return dp_path
-    return None
 
 # wait up to 0.5 seconds for response
 def hid_read():

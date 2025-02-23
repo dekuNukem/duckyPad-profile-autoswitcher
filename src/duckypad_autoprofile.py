@@ -94,7 +94,7 @@ def duckypad_connect(show_box=True):
     global fw_update_checked
     global is_dpp
 
-    if hid_rw.get_duckypad_path() is None:
+    if hid_rw.get_duckypad_path(start_fresh=True) is None:
         connection_info_str.set("duckyPad not found")
         connection_info_label.config(foreground='red')
         return

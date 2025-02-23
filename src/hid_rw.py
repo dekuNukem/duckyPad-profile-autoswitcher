@@ -38,7 +38,7 @@ duckypad_pid = 0xd11c
 duckypad_pro_pid = 0xd11d
 valid_pid_list = [duckypad_pro_pid, duckypad_pid]
 
-def get_path_by_pid(my_pid):
+def get_duckypad_path_uncached():
     path_dict = {}
     for device_dict in hid.enumerate():
         if device_dict['vendor_id'] == 0x0483 and device_dict['product_id'] in valid_pid_list:
@@ -49,14 +49,14 @@ def get_path_by_pid(my_pid):
         return path_dict[58]
     return list(path_dict.values())[0]
 
-def get_duckypad_path():
-    dpp_path = get_path_by_pid(duckypad_pro_pid)
-    if dpp_path is not None:
-        return dpp_path
-    dp_path = get_path_by_pid(duckypad_pid)
-    if dp_path is not None:
-        return dp_path
-    return None
+last_dp_path = None
+def get_duckypad_path(start_fresh=False):
+    global last_dp_path
+    if start_fresh:
+        last_dp_path = None
+    if last_dp_path is None:
+        last_dp_path = get_duckypad_path_uncached()
+    return last_dp_path
 
 def hid_read():
     read_start = time.time()
