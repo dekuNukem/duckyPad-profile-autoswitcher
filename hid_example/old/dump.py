@@ -54,11 +54,6 @@ def hid_read():
 		time.sleep(0.01)
 	return []
 
-pc_to_duckypad_buf = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
-pc_to_duckypad_buf[0] = 5	# HID Usage ID, always 5
-pc_to_duckypad_buf[1] = 0	# Sequence Number
-pc_to_duckypad_buf[2] = 0	# Command type
-
 
 duckypad_path = get_duckypad_path()
 if duckypad_path is None:
@@ -66,11 +61,12 @@ if duckypad_path is None:
 h.open_path(duckypad_path)
 h.set_nonblocking(1)
 
-for x in range(10):
-	# print("\n\nSending to duckyPad:\n", pc_to_duckypad_buf)
-	h.write(pc_to_duckypad_buf)
-	duckypad_to_pc_buf = hid_read()
-	# print("\nduckyPad response:\n", duckypad_to_pc_buf)
-	print(x, millis() - pgm_start)
 
-h.close()
+pc_to_duckypad_buf = [0] * PC_TO_DUCKYPAD_HID_BUF_SIZE
+pc_to_duckypad_buf[0] = 5	# HID Usage ID, always 5
+pc_to_duckypad_buf[1] = 0	# Sequence Number
+pc_to_duckypad_buf[2] = 0	# Command type
+
+print("\n\nSending to duckyPad:\n", pc_to_duckypad_buf)
+duckypad_to_pc_buf = duckypad_hid_write(pc_to_duckypad_buf)
+print("\nduckyPad response:\n", duckypad_to_pc_buf)
